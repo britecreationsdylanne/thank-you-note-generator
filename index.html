@@ -634,6 +634,8 @@
             const [nearbyShops, setNearbyShops] = useState([]);
             const [addressSuggestions, setAddressSuggestions] = useState([]);
             const [showSuggestions, setShowSuggestions] = useState(false);
+            const [guestAddressSuggestions, setGuestAddressSuggestions] = useState([]);
+            const [showGuestSuggestions, setShowGuestSuggestions] = useState(false);
             const [sealVariations, setSealVariations] = useState([]);
             const fileInputRef = useRef(null);
 
@@ -840,6 +842,109 @@
                     // Fallback: just use the description
                     setDetails({...details, returnAddr: suggestion.description});
                     setShowSuggestions(false);
+                }
+            };
+
+            const handleGuestAddressInput = async (value) => {
+                setCurrentGuest({...currentGuest, addr: value});
+
+                if (value.length > 3) {
+                    try {
+                        const response = await fetch('/.netlify/functions/autocomplete-address', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                input: value
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to get address suggestions');
+                        }
+
+                        const data = await response.json();
+
+                        if (data.predictions && data.predictions.length > 0) {
+                            setGuestAddressSuggestions(data.predictions.map(p => ({
+                                description: p.description,
+                                placeId: p.place_id
+                            })));
+                            setShowGuestSuggestions(true);
+                        } else {
+                            setShowGuestSuggestions(false);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching guest address suggestions:', error);
+                        setShowGuestSuggestions(false);
+                    }
+                } else {
+                    setShowGuestSuggestions(false);
+                }
+            };
+
+            const handleGuestAddressSelect = async (suggestion) => {
+                try {
+                    const response = await fetch('/.netlify/functions/place-details', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            placeId: suggestion.placeId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to get place details');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.result && data.result.address_components) {
+                        const components = data.result.address_components;
+
+                        let streetNumber = '';
+                        let route = '';
+                        let city = '';
+                        let state = '';
+                        let zip = '';
+
+                        components.forEach(component => {
+                            if (component.types.includes('street_number')) {
+                                streetNumber = component.long_name;
+                            }
+                            if (component.types.includes('route')) {
+                                route = component.long_name;
+                            }
+                            if (component.types.includes('locality')) {
+                                city = component.long_name;
+                            }
+                            if (component.types.includes('administrative_area_level_1')) {
+                                state = component.short_name;
+                            }
+                            if (component.types.includes('postal_code')) {
+                                zip = component.long_name;
+                            }
+                        });
+
+                        setCurrentGuest({
+                            ...currentGuest,
+                            addr: `${streetNumber} ${route}`.trim(),
+                            city: city,
+                            state: state,
+                            zip: zip
+                        });
+                    } else {
+                        setCurrentGuest({...currentGuest, addr: suggestion.description});
+                    }
+
+                    setShowGuestSuggestions(false);
+                } catch (error) {
+                    console.error('Error getting guest place details:', error);
+                    setCurrentGuest({...currentGuest, addr: suggestion.description});
+                    setShowGuestSuggestions(false);
                 }
             };
 
@@ -1859,18 +1964,6 @@ Make it completely unique from previous notes with natural flow!`;
 
                         <div className="card">
                             <div className="form-section">
-                                <label>Full Name for Return Labels</label>
-                                <input
-                                    value={details.fullName}
-                                    onChange={(e) => setDetails({...details, fullName: e.target.value})}
-                                    placeholder="Sarah & Mike Johnson"
-                                />
-                                <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
-                                    Your full name(s) for the return address labels 🏷️
-                                </p>
-                            </div>
-
-                            <div className="form-section">
                                 <label>Card Signature</label>
                                 <input
                                     value={details.names}
@@ -1892,6 +1985,18 @@ Make it completely unique from previous notes with natural flow!`;
                                 />
                                 <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
                                     These will appear on your decorative envelope seals 💫
+                                </p>
+                            </div>
+
+                            <div className="form-section">
+                                <label>Full Name for Return Labels (Optional)</label>
+                                <input
+                                    value={details.fullName}
+                                    onChange={(e) => setDetails({...details, fullName: e.target.value})}
+                                    placeholder={details.names || "Sarah & Mike Johnson"}
+                                />
+                                <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
+                                    Leave blank to use Card Signature. Add last name if needed. 🏷️
                                 </p>
                             </div>
 
@@ -2159,14 +2264,28 @@ Make it completely unique from previous notes with natural flow!`;
                                         </p>
                                     </div>
 
-                                    <div className="form-section">
+                                    <div className="form-section" style={{position: 'relative'}}>
                                         <label>Mailing Address</label>
                                         <input
                                             value={currentGuest.addr}
-                                            onChange={(e) => setCurrentGuest({...currentGuest, addr: e.target.value})}
+                                            onChange={(e) => handleGuestAddressInput(e.target.value)}
+                                            onBlur={() => setTimeout(() => setShowGuestSuggestions(false), 200)}
                                             placeholder="123 Main Street"
                                             style={{marginBottom: '0.75rem'}}
                                         />
+                                        {showGuestSuggestions && guestAddressSuggestions.length > 0 && (
+                                            <div className="address-suggestions">
+                                                {guestAddressSuggestions.map((addr, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="address-suggestion"
+                                                        onClick={() => handleGuestAddressSelect(addr)}
+                                                    >
+                                                        {addr.description}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                         <input
                                             value={currentGuest.addr2}
                                             onChange={(e) => setCurrentGuest({...currentGuest, addr2: e.target.value})}
@@ -2617,7 +2736,11 @@ Make it completely unique from previous notes with natural flow!`;
                                 Search for print shops near your location
                             </p>
                             <a
-                                href={`https://www.google.com/maps/search/print+shop+near+${encodeURIComponent(details.returnCity + ', ' + details.returnState)}`}
+                                href={`https://www.google.com/maps/search/print+shop+near+${encodeURIComponent(
+                                    [details.returnAddr, details.returnAddr2, details.returnCity, details.returnState, details.returnZip]
+                                        .filter(Boolean)
+                                        .join(', ')
+                                )}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn-secondary"
