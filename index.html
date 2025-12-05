@@ -597,6 +597,96 @@
         .address-suggestion:hover {
             background: #F0F7F6;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 1.25rem;
+            }
+
+            /* Stack option grids on mobile */
+            .option-grid-4 {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+            }
+
+            /* Stack form grids on mobile */
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            /* Stack download grid on mobile */
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Adjust button sizes */
+            .btn-primary, .btn-secondary {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.95rem;
+            }
+
+            /* Smaller font previews on mobile */
+            .font-preview {
+                font-size: 1.25rem;
+                height: 40px;
+            }
+
+            /* Adjust color swatches */
+            .color-swatch {
+                height: 50px;
+            }
+
+            /* Mobile upload zone */
+            .upload-zone {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .upload-icon {
+                font-size: 2.5rem;
+            }
+
+            .upload-text {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            /* Single column for option grids on very small screens */
+            .option-grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .option-box {
+                padding: 0.875rem;
+            }
+
+            .option-box h4 {
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 <body>
