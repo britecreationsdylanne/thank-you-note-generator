@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thank You Note Generator</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=Dancing+Script:wght@400;700&family=Caveat:wght@400;700&family=Great+Vibes&family=Satisfy&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #E8E3DC;
+            color: #2D5853;
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3 { 
+            font-family: 'Playfair Display', serif;
+            color: #2D5853;
+            font-weight: 600;
+        }
+        
+        .brand-badge {
+            background: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: #666;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-section {
+            text-align: center;
+            padding: 3rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .hero-section h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: #C8956B;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .hero-description {
+            font-size: 1.125rem;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            padding: 0 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #2D5853;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .how-it-works {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .how-it-works h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #2D5853;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 auto 1rem;
+        }
+        
+        .step h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+        
+        .step p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .tip {
+            text-align: center;
+            margin-top: 2rem;
+            color: #C8956B;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: #2D5853;
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.125rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-primary:hover {
+            background: #3A6F68;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45,88,83,0.3);
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #2D5853;
+            border: 2px solid #C8956B;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background: #FFF9F5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #2D5853;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .back-link:hover {
+            color: #3A6F68;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: #666;
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .upload-zone {
+            border: 3px dashed #C8956B;
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-zone:hover, .upload-zone.drag-over {
+            background: #FFF9F5;
+            border-color: #B8855B;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #999;
+        }
+        
+        .upload-text {
+            font-size: 1.25rem;
+            color: #2D5853;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-hint {
+            color: #999;
+            font-size: 1rem;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #2D5853;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #C8956B;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2D5853;
+            box-shadow: 0 0 0 3px rgba(45,88,83,0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .option-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        
+        .option-box {
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .option-box:hover {
+            border-color: #C8956B;
+        }
+        
+        .option-box.selected {
+            border-color: #2D5853;
+            background: #F0F7F6;
+        }
+        
+        .option-box h4 {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: #2D5853;
+        }
+        
+        .color-swatch {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .font-preview {
+            font-size: 1.5rem;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .font-georgia { font-family: Georgia, serif; }
+        .font-times { font-family: 'Times New Roman', serif; }
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+        .font-caveat { font-family: 'Caveat', cursive; }
+        .font-kalam { font-family: 'Kalam', cursive; }
+        .font-vibes { font-family: 'Great Vibes', cursive; }
+        .font-satisfy { font-family: 'Satisfy', cursive; }
+        .font-palatino { font-family: 'Palatino Linotype', serif; }
+        .font-garamond { font-family: Garamond, serif; }
+        
+        .pattern-preview {
+            height: 60px;
+            border-radius: 8px;
+        }
+        
+        .pattern-solid { background: white; border: 1px solid #ddd; }
+        .pattern-stripes { background: repeating-linear-gradient(45deg, #fff, #fff 8px, #f5f5f5 8px, #f5f5f5 16px); border: 1px solid #ddd; }
+        .pattern-dots { background-image: radial-gradient(circle, #ddd 2px, transparent 2px); background-size: 20px 20px; background-color: white; border: 1px solid #ddd; }
+        .pattern-floral { background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><text x="15" y="30" font-size="20" fill="%23ddd">❀</text><text x="35" y="50" font-size="15" fill="%23ddd">❀</text></svg>'); }
+        .pattern-hearts { background: white; background-image: radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%); background-size: 40px 40px; }
+        .pattern-diamonds { background: white; background-image: linear-gradient(45deg, #f5f5f5 25%, transparent 25%), linear-gradient(-45deg, #f5f5f5 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f5f5f5 75%), linear-gradient(-45deg, transparent 75%, #f5f5f5 75%); background-size: 30px 30px; background-position: 0 0, 0 15px, 15px -15px, -15px 0px; }
+        .pattern-waves { background: white; background-image: repeating-radial-gradient(circle at 0 0, transparent 0, white 10px), repeating-linear-gradient(#f5f5f5, #f5f5f5); }
+        .pattern-grid { background: white; background-image: linear-gradient(#f5f5f5 1px, transparent 1px), linear-gradient(90deg, #f5f5f5 1px, transparent 1px); background-size: 20px 20px; }
+        
+        .seal-preview-box {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #333;
+            position: relative;
+        }
+        
+        .seal-classic {
+            border: 2px solid currentColor;
+        }
+
+        .seal-double {
+            border: 2px solid currentColor;
+            box-shadow: inset 0 0 0 6px currentColor;
+        }
+
+        .seal-ornate {
+            border: 3px solid currentColor;
+        }
+        .seal-ornate::before {
+            content: '• • • • • • • •';
+            position: absolute;
+            font-size: 0.5rem;
+            top: 4px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            letter-spacing: 4px;
+        }
+
+        .seal-scalloped {
+            border: 2px solid currentColor;
+            box-shadow: inset 0 0 0 1px currentColor, inset 0 0 0 8px currentColor;
+        }
+
+        .seal-botanical {
+            border: 2px solid currentColor;
+            background-image:
+                radial-gradient(circle at 50% 15%, currentColor 1px, transparent 1px),
+                radial-gradient(circle at 50% 15%, transparent 2px, currentColor 3px, transparent 4px),
+                radial-gradient(circle at 85% 50%, currentColor 1px, transparent 1px),
+                radial-gradient(circle at 85% 50%, transparent 2px, currentColor 3px, transparent 4px),
+                radial-gradient(circle at 50% 85%, currentColor 1px, transparent 1px),
+                radial-gradient(circle at 50% 85%, transparent 2px, currentColor 3px, transparent 4px),
+                radial-gradient(circle at 15% 50%, currentColor 1px, transparent 1px),
+                radial-gradient(circle at 15% 50%, transparent 2px, currentColor 3px, transparent 4px);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+
+        .seal-vintage {
+            border: 2px dashed currentColor;
+        }
+
+        .seal-art-deco {
+            border: 3px solid currentColor;
+        }
+
+        .seal-minimal {
+            border: 1px solid currentColor;
+        }
+        
+        .guest-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .guest-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .guest-item-info {
+            flex: 1;
+        }
+        
+        .guest-item-info strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .guest-item-info span {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #d32f2f;
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+        }
+        
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .download-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .download-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .download-card h4 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+        
+        .download-card p {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .print-shops {
+            background: #F0F7F6;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .print-shops h4 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .shops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .shop-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+        
+        .shop-item strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2D5853;
+            font-size: 1.125rem;
+        }
+        
+        .shop-item p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .shop-item a {
+            color: #2D5853;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .shop-item a:hover {
+            color: #C8956B;
+        }
+        
+        .shop-distance {
+            font-size: 0.875rem;
+            color: #C8956B;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .address-suggestions {
+            border: 2px solid #C8956B;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            background: white;
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .address-suggestion {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .address-suggestion:hover {
+            background: #F0F7F6;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        function App() {
+            const [step, setStep] = useState(1);
+            const [inputMethod, setInputMethod] = useState(null);
+            const [details, setDetails] = useState({
+                names: '',
+                fullName: '',
+                initials: '',
+                occasion: 'wedding',
+                tone: 'warm',
+                design: 'solid',
+                color: '#F8F6F3',
+                font: 'dancing',
+                sealDesign: 'classic',
+                selectedSealVariation: 0,
+                returnAddr: '',
+                returnCity: '',
+                returnState: '',
+                returnZip: ''
+            });
+            const [guests, setGuests] = useState([]);
+            const [currentGuest, setCurrentGuest] = useState({
+                name: '', gift: '', memo: '', relationship: '', addr: '', city: '', state: '', zip: ''
+            });
+            const [notes, setNotes] = useState([]);
+            const [dragOver, setDragOver] = useState(false);
+            const [nearbyShops, setNearbyShops] = useState([]);
+            const [addressSuggestions, setAddressSuggestions] = useState([]);
+            const [showSuggestions, setShowSuggestions] = useState(false);
+            const [sealVariations, setSealVariations] = useState([]);
+            const fileInputRef = useRef(null);
+
+            const occasions = {
+                wedding: '💍 Wedding',
+                baby_shower: '👶 Baby Shower',
+                birthday: '🎂 Birthday',
+                graduation: '🎓 Graduation',
+                anniversary: '💕 Anniversary',
+                general: '🎁 General'
+            };
+
+            const tones = [
+                { id: 'formal', name: 'Formal' },
+                { id: 'warm', name: 'Warm' },
+                { id: 'casual', name: 'Casual' },
+                { id: 'heartfelt', name: 'Heartfelt' },
+                { id: 'friendly', name: 'Friendly' },
+                { id: 'elegant', name: 'Elegant' },
+                { id: 'playful', name: 'Playful' },
+                { id: 'sincere', name: 'Sincere' }
+            ];
+
+            const colorPresets = [
+                { name: 'Cream', value: '#F8F6F3' },
+                { name: 'White', value: '#FFFFFF' },
+                { name: 'Blush', value: '#FFE4E1' },
+                { name: 'Mint', value: '#E8F3E8' },
+                { name: 'Lavender', value: '#F0E6FF' },
+                { name: 'Sky', value: '#E3F2FD' },
+                { name: 'Peach', value: '#FFE5CC' },
+                { name: 'Sage', value: '#D4E4D0' }
+            ];
+
+            const fonts = [
+                { id: 'times', name: 'Times' },
+                { id: 'dancing', name: 'Dancing Script' },
+                { id: 'caveat', name: 'Caveat' },
+                { id: 'kalam', name: 'Kalam (Handwritten)' },
+                { id: 'vibes', name: 'Great Vibes' },
+                { id: 'satisfy', name: 'Satisfy' },
+                { id: 'palatino', name: 'Palatino' },
+                { id: 'garamond', name: 'Garamond' }
+            ];
+
+            const patterns = [
+                { id: 'solid', name: 'Solid' },
+                { id: 'stripes', name: 'Stripes' },
+                { id: 'dots', name: 'Dots' },
+                { id: 'floral', name: 'Floral' },
+                { id: 'hearts', name: 'Hearts' },
+                { id: 'diamonds', name: 'Diamonds' },
+                { id: 'waves', name: 'Waves' },
+                { id: 'grid', name: 'Grid' }
+            ];
+
+            const sealDesigns = [
+                { id: 'classic', name: 'Classic Border' },
+                { id: 'double', name: 'Double Ring' },
+                { id: 'ornate', name: 'Ornate Dots' },
+                { id: 'scalloped', name: 'Scalloped Edge' },
+                { id: 'botanical', name: 'Botanical' },
+                { id: 'vintage', name: 'Vintage Dashed' },
+                { id: 'art-deco', name: 'Art Deco' },
+                { id: 'minimal', name: 'Minimal Line' }
+            ];
+
+            // Generate 5 seal variations based on occasion
+            const generateSealVariations = () => {
+                const getInitials = (n) => {
+                    const parts = n.split(/[& ]+/);
+                    if (parts.length >= 2) return parts[0].charAt(0) + parts[1].charAt(0);
+                    return n.substring(0, 2);
+                };
+                const initials = (details.initials || getInitials(details.names)).toUpperCase();
+
+                // Event-specific icons
+                const eventIcons = {
+                    wedding: ['💕', '💍', '💐', '🤍', '✨'],
+                    baby_shower: ['👶', '🍼', '🎀', '⭐', '💙'],
+                    birthday: ['🎂', '🎉', '🎈', '🎁', '✨'],
+                    graduation: ['🎓', '📚', '⭐', '🌟', '🎊'],
+                    anniversary: ['💕', '💐', '🥂', '💝', '✨'],
+                    general: ['✨', '💫', '⭐', '🌟', '💝']
+                };
+
+                const icons = eventIcons[details.occasion] || eventIcons.general;
+                const designs = ['double', 'ornate', 'botanical', 'scalloped', 'art-deco'];
+
+                return icons.map((icon, i) => ({
+                    id: i,
+                    initials: initials,
+                    icon: icon,
+                    design: designs[i],
+                    name: `Option ${i + 1}`
+                }));
+            };
+
+            // Address autocomplete simulation (in production, use Google Places API)
+            const handleAddressInput = async (value, field) => {
+                setDetails({...details, [field]: value});
+                
+                if (field === 'returnAddr' && value.length > 3) {
+                    // Simulate address suggestions (in production, call actual API)
+                    setAddressSuggestions([
+                        value + ', City, ST',
+                        value + ' Street, City, ST',
+                        value + ' Avenue, City, ST'
+                    ]);
+                    setShowSuggestions(true);
+                } else {
+                    setShowSuggestions(false);
+                }
+            };
+
+            // Find nearby print shops based on address
+            const findNearbyShops = async () => {
+                const address = `${details.returnAddr}, ${details.returnCity}, ${details.returnState}`;
+                
+                // Simulate finding nearby shops (in production, use Google Places API)
+                // For now, showing generic nearby locations
+                const shops = [
+                    {
+                        name: 'FedEx Office',
+                        distance: '0.8 miles',
+                        address: '123 Main St',
+                        phone: '(555) 123-4567',
+                        url: 'https://www.fedex.com/en-us/printing.html'
+                    },
+                    {
+                        name: 'Staples Print & Marketing',
+                        distance: '1.2 miles',
+                        address: '456 Oak Ave',
+                        phone: '(555) 234-5678',
+                        url: 'https://www.staples.com/services/printing/'
+                    },
+                    {
+                        name: 'The UPS Store',
+                        distance: '1.5 miles',
+                        address: '789 Elm St',
+                        phone: '(555) 345-6789',
+                        url: 'https://www.theupsstore.com/print'
+                    }
+                ];
+                
+                setNearbyShops(shops);
+            };
+
+            useEffect(() => {
+                if (step === 5 && details.returnAddr && details.returnCity) {
+                    findNearbyShops();
+                }
+            }, [step]);
+
+            const generateNote = (g) => {
+                const occ = occasions[details.occasion].replace(/[^\w\s]/g, '').trim().toLowerCase();
+                const tone = details.tone || 'warm';
+
+                // Determine if this is the sender's event or the recipient's event
+                const isRecipientEvent = ['birthday', 'graduation', 'baby_shower'].includes(details.occasion);
+                const eventPossessive = isRecipientEvent ? 'your' : 'our';
+
+                // Helper to integrate personal memo naturally into a sentence
+                const integrateMemo = (memo) => {
+                    if (!memo || !memo.trim()) return '';
+
+                    const m = memo.trim();
+                    // Check if it already starts with a capital and ends with punctuation (complete sentence)
+                    const isCompleteSentence = /^[A-Z]/.test(m) && /[.!?]$/.test(m);
+                    if (isCompleteSentence) return ' ' + m;
+
+                    // Add "Your" before the memo and make it a complete sentence
+                    return ` Your ${m.toLowerCase()}${/[.!?]$/.test(m) ? '' : ' was such a special moment.'}`;
+                };
+
+                // Helper function to detect if gift needs article and determine singular/plural
+                const formatGift = (giftText) => {
+                    if (!giftText) return null;
+
+                    const gift = giftText.trim();
+
+                    // Check if already has article
+                    const hasArticle = /^(the|a|an|your|our|this|that|these|those)\s/i.test(gift);
+
+                    // Determine if plural by checking common plural patterns
+                    const lowerGift = gift.toLowerCase();
+                    const isPlural = lowerGift.match(/s$|ves$|ies$|es$/) &&
+                                    !lowerGift.match(/ss$|glass$|dress$/) ||
+                                    lowerGift.includes(' and ') ||
+                                    lowerGift.match(/^(several|many|some|multiple|both|two|three|four|five|six|seven|eight|nine|ten)/);
+
+                    // If has article, use as-is
+                    if (hasArticle) {
+                        return { text: gift, plural: isPlural };
+                    }
+
+                    // Add appropriate article
+                    if (isPlural) {
+                        return { text: `the ${gift}`, plural: true };
+                    } else {
+                        // Singular - use "the" for most gifts
+                        return { text: `the ${gift}`, plural: false };
+                    }
+                };
+
+                // Build the thank you note in a natural, conversational way
+                let message = '';
+
+                // Greeting - extract first name only
+                const firstName = g.name.split(' ')[0].split(',')[0];
+                const greetings = {
+                    formal: `Dear ${firstName},`,
+                    warm: `Dear ${firstName},`,
+                    casual: `Hi ${firstName},`,
+                    heartfelt: `Dear ${firstName},`,
+                    friendly: `Hi ${firstName},`,
+                    elegant: `Dearest ${firstName},`,
+                    playful: `Hey ${firstName},`,
+                    sincere: `Dear ${firstName},`
+                };
+                message += greetings[tone] + '\n\n';
+
+                // Main thank you message - combines attendance + gift naturally
+                if (g.gift && g.gift.trim()) {
+                    // They gave a gift - thank for both attendance and gift
+                    const giftInfo = formatGift(g.gift);
+                    const gift = giftInfo.text;
+                    const isPlural = giftInfo.plural;
+
+                    const memoIntegration = integrateMemo(g.memo);
+
+                    switch(tone) {
+                        case 'formal':
+                            message += isRecipientEvent
+                                ? `Thank you for the generous gift of ${gift}. Your thoughtfulness is deeply appreciated.${memoIntegration}`
+                                : `Thank you for celebrating ${eventPossessive} ${occ} with us and for your generous gift of ${gift}.${memoIntegration} It was wonderful having you share this special day.`;
+                            break;
+                        case 'warm':
+                            message += isRecipientEvent
+                                ? `Thank you so much for ${gift} - we love ${isPlural ? 'them' : 'it'}!${memoIntegration} You made ${eventPossessive} ${occ} so special.`
+                                : `Thank you for celebrating ${eventPossessive} ${occ} with us! We love ${gift} so much.${memoIntegration} It means the world having you there.`;
+                            break;
+                        case 'casual':
+                            message += isRecipientEvent
+                                ? `Thanks for ${gift} - ${isPlural ? "they're" : "it's"} perfect!${memoIntegration} You're the best!`
+                                : `Thanks for coming to ${eventPossessive} ${occ}! We love ${gift}.${memoIntegration} So glad you were there!`;
+                            break;
+                        case 'heartfelt':
+                            message += isRecipientEvent
+                                ? `Thank you for ${gift}. Your generosity touches our hearts.${memoIntegration}`
+                                : `Having you at ${eventPossessive} ${occ} meant so much. Thank you for ${gift}.${memoIntegration} We're so grateful for you.`;
+                            break;
+                        case 'friendly':
+                            message += isRecipientEvent
+                                ? `Thank you for ${gift}! We're already using ${isPlural ? 'them' : 'it'} and thinking of you.${memoIntegration}`
+                                : `So great having you at ${eventPossessive} ${occ}! Thank you for ${gift}.${memoIntegration} We're already putting ${isPlural ? 'them' : 'it'} to good use.`;
+                            break;
+                        case 'elegant':
+                            message += isRecipientEvent
+                                ? `Thank you for the exquisite gift of ${gift}. We are deeply grateful.${memoIntegration}`
+                                : `Your presence at ${eventPossessive} ${occ} was a joy. Thank you for the beautiful gift of ${gift}.${memoIntegration}`;
+                            break;
+                        case 'playful':
+                            message += isRecipientEvent
+                                ? `Thank you for ${gift} - you nailed it!${memoIntegration} ${eventPossessive.charAt(0).toUpperCase() + eventPossessive.slice(1)} ${occ} was so fun!`
+                                : `Thanks for making ${eventPossessive} ${occ} awesome! We love ${gift}.${memoIntegration}`;
+                            break;
+                        case 'sincere':
+                            message += isRecipientEvent
+                                ? `Thank you for your thoughtful gift of ${gift}.${memoIntegration} Your kindness means so much.`
+                                : `Thank you for being part of ${eventPossessive} ${occ} and for ${gift}.${memoIntegration} We're so glad you were there.`;
+                            break;
+                    }
+                } else {
+                    // No gift - focus on presence/wishes + integrate memo
+                    const memoIntegration = integrateMemo(g.memo);
+
+                    switch(tone) {
+                        case 'formal':
+                            message += isRecipientEvent
+                                ? `Thank you for your thoughtful wishes on ${eventPossessive} ${occ}.${memoIntegration} Your kindness is deeply appreciated.`
+                                : `Thank you for joining us at ${eventPossessive} ${occ}.${memoIntegration} Your presence made it truly special.`;
+                            break;
+                        case 'warm':
+                            message += isRecipientEvent
+                                ? `Thank you so much for thinking of us on ${eventPossessive} ${occ}!${memoIntegration} You made our day!`
+                                : `Thank you for celebrating ${eventPossessive} ${occ} with us!${memoIntegration} Having you there meant everything.`;
+                            break;
+                        case 'casual':
+                            message += isRecipientEvent
+                                ? `Thanks for the birthday wishes!${memoIntegration} You're awesome!`
+                                : `Thanks for being at ${eventPossessive} ${occ}!${memoIntegration} It was so great having you there.`;
+                            break;
+                        case 'heartfelt':
+                            message += isRecipientEvent
+                                ? `Your thoughtfulness on ${eventPossessive} ${occ} meant the world.${memoIntegration} We're so grateful for you.`
+                                : `Having you at ${eventPossessive} ${occ} meant so much.${memoIntegration} We're so grateful for you.`;
+                            break;
+                        case 'friendly':
+                            message += isRecipientEvent
+                                ? `Thank you for making ${eventPossessive} ${occ} so special!${memoIntegration}`
+                                : `So great celebrating ${eventPossessive} ${occ} with you!${memoIntegration} Your friendship means the world.`;
+                            break;
+                        case 'elegant':
+                            message += isRecipientEvent
+                                ? `Thank you for your gracious wishes on ${eventPossessive} ${occ}.${memoIntegration} We are deeply grateful.`
+                                : `Your presence at ${eventPossessive} ${occ} was a joy.${memoIntegration} We're so glad you could share this day.`;
+                            break;
+                        case 'playful':
+                            message += isRecipientEvent
+                                ? `Thanks for making ${eventPossessive} ${occ} awesome!${memoIntegration} You rock!`
+                                : `So glad you came to ${eventPossessive} ${occ}!${memoIntegration} You made it so fun!`;
+                            break;
+                        case 'sincere':
+                            message += isRecipientEvent
+                                ? `Thank you for your kindness on ${eventPossessive} ${occ}.${memoIntegration} It meant so much.`
+                                : `Thank you for being part of ${eventPossessive} ${occ}.${memoIntegration} We're so glad you were there.`;
+                            break;
+                    }
+                }
+
+                // Personal memo integrated earlier in message body
+
+                message += '\n\n';
+
+                // Closing sentiment
+                switch(tone) {
+                    case 'formal':
+                        message += `We hope to see you again soon.`;
+                        break;
+                    case 'warm':
+                        message += `We can't wait to see you again soon!`;
+                        break;
+                    case 'casual':
+                        message += `Let's get together again soon!`;
+                        break;
+                    case 'heartfelt':
+                        message += `You hold such a special place in our hearts.`;
+                        break;
+                    case 'friendly':
+                        message += `Looking forward to our next get-together!`;
+                        break;
+                    case 'elegant':
+                        message += `We look forward to our next gathering.`;
+                        break;
+                    case 'playful':
+                        message += `Catch you soon!`;
+                        break;
+                    case 'sincere':
+                        message += `We truly hope to see you again very soon.`;
+                        break;
+                }
+
+                message += '\n\n';
+
+                // Add relationship closing if provided
+                const relationshipClosing = g.relationship
+                    ? ` You're such a wonderful ${g.relationship.toLowerCase()}.`
+                    : '';
+
+                // Sign-off
+                const signoffs = {
+                    formal: `With sincere gratitude,`,
+                    warm: `With love,`,
+                    casual: `Love,`,
+                    heartfelt: `All our love,`,
+                    friendly: `Warmly,`,
+                    elegant: `With gratitude,`,
+                    playful: `Hugs,`,
+                    sincere: `With warmest regards,`
+                };
+
+                message += relationshipClosing + '\n\n' + signoffs[tone] + '\n' + details.names;
+
+                return message;
+            };
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        const parsed = results.data.map((r, i) => ({
+                            id: Date.now() + i,
+                            name: r.Name || r.name || r['Guest Name'] || '',
+                            gift: r.Gift || r.gift || r['Gift Description'] || '',
+                            memo: r.Memo || r.memo || r['Special Memory'] || r['Special Moment'] || '',
+                            relationship: r.Relationship || r.relationship || r['Relation'] || '',
+                            addr: r.Address || r.address || r.addr || r['Street Address'] || '',
+                            city: r.City || r.city || '',
+                            state: r.State || r.state || '',
+                            zip: r.Zip || r.ZIP || r.zip || r['Zip Code'] || ''
+                        })).filter(g => g.name);
+                        setGuests(parsed);
+                        setInputMethod('bulk');
+                    }
+                });
+            };
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                setDragOver(true);
+            };
+
+            const handleDragLeave = (e) => {
+                e.preventDefault();
+                setDragOver(false);
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                setDragOver(false);
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].name.endsWith('.csv')) {
+                    Papa.parse(files[0], {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            const parsed = results.data.map((r, i) => ({
+                                id: Date.now() + i,
+                                name: r.Name || r.name || r['Guest Name'] || '',
+                                gift: r.Gift || r.gift || r['Gift Description'] || '',
+                                memo: r.Memo || r.memo || r['Special Memory'] || r['Special Moment'] || '',
+                                relationship: r.Relationship || r.relationship || r['Relation'] || '',
+                                addr: r.Address || r.address || r.addr || r['Street Address'] || '',
+                                city: r.City || r.city || '',
+                                state: r.State || r.state || '',
+                                zip: r.Zip || r.ZIP || r.zip || r['Zip Code'] || ''
+                            })).filter(g => g.name);
+                            setGuests(parsed);
+                            setInputMethod('bulk');
+                        }
+                    });
+                }
+            };
+
+            const addGuest = () => {
+                if (!currentGuest.name) return;
+                setGuests([...guests, { ...currentGuest, id: Date.now() }]);
+                setCurrentGuest({
+                    name: '', gift: '', memo: '', relationship: '', addr: '', city: '', state: '', zip: ''
+                });
+            };
+
+            const deleteGuest = (id) => {
+                setGuests(guests.filter(g => g.id !== id));
+            };
+
+            const generateNoteWithAI = async (guest) => {
+                console.log('Generating AI note for:', guest.name);
+
+                try {
+                    const firstName = guest.name.split(' ')[0].split(',')[0];
+                    const isRecipientEvent = ['birthday', 'graduation', 'baby_shower'].includes(details.occasion);
+                    const eventType = occasions[details.occasion].replace(/[^\w\s]/g, '').trim();
+
+                    const prompt = `🚨 CRITICAL INSTRUCTION 🚨
+You are writing thank you note #${guests.indexOf(guest) + 1}. Each note you write MUST be COMPLETELY DIFFERENT from the previous ones. If you wrote "Thank you for celebrating" in the last note, use a COMPLETELY DIFFERENT opening this time (e.g., "We're so grateful you joined us" or "${firstName}, having you at our ${eventType} meant everything" or "Your presence at our celebration was the best gift").
+
+NEVER repeat the same sentence structure, phrases, or patterns. Write as if each note is from a different person with a unique voice.
+
+RECIPIENT INFO:
+- Name: ${firstName}
+- Gift: ${guest.gift || 'no physical gift, just their presence'}
+- Special moment: ${guest.memo || 'none mentioned'}
+- Relationship: ${guest.relationship || 'guest'}
+- Event: ${isRecipientEvent ? `${firstName}'s ${eventType} (use "YOUR ${eventType}")` : `Our ${eventType} (use "OUR ${eventType}")`}
+- Tone: ${details.tone}
+- Sign from: ${details.names}
+
+MANDATORY UNIQUENESS REQUIREMENTS:
+
+1. GREETING FORMAT - CRITICAL:
+   Write the greeting on its own line, then start the message on the next line:
+   "${firstName}," (on its own line)
+   Then the message starts below it.
+
+   Match tone: formal/warm/heartfelt/elegant/sincere: "Dear ${firstName}," / casual/friendly: "Hi ${firstName}," / playful: "Hey ${firstName},"
+
+2. VARY YOUR OPENING - Never start with "Thank you for celebrating" twice:
+   Examples: "We're so grateful you joined us" / "Your presence meant the world" / "Having you there made our day complete" / "What a joy it was to celebrate with you" / "We loved having you share our special day"
+
+3. TALK ABOUT THE GIFT DIFFERENTLY each time:
+   ${guest.gift ? `
+   - DON'T say "We love the ${guest.gift} so much" - that's generic
+   - Instead, describe HOW you'll use it, WHY it's perfect, WHAT it means to you
+   - Examples: "The ${guest.gift} will have such a special place in our home" / "Every time we use the ${guest.gift}, we'll think of you" / "You chose the perfect ${guest.gift} - it's exactly what we needed" / "The ${guest.gift} is absolutely beautiful and so thoughtful"
+   ` : '- Focus on how much their attendance meant, be specific about what they brought to the celebration'}
+
+4. WEAVE IN THE SPECIAL MOMENT NATURALLY - Don't use "was such a special moment":
+   ${guest.memo ? `
+   - The memo is: "${guest.memo}"
+   - DON'T say "Your ${guest.memo} was such a special moment"
+   - Instead, integrate it naturally: "We'll never forget ${guest.memo}" / "${guest.memo} touched our hearts" / "The way you ${guest.memo} meant so much to us" / "We're still talking about ${guest.memo}"
+   ` : ''}
+
+5. VARY HOW YOU CLOSE - Don't repeat "We can't wait to see you again soon":
+   Examples: "Let's get together soon" / "Looking forward to our next visit" / "Hope to see you again before too long" / "Can't wait for the next time we're all together" / "We need to plan a get-together soon" / "See you soon, we hope"
+
+6. RELATIONSHIP ACKNOWLEDGMENT - Don't just say "You're such a wonderful ${guest.relationship}":
+   ${guest.relationship ? `
+   Examples: "Having ${guest.relationship} like you means everything" / "We're so lucky to have you in our lives" / "Your ${guest.relationship} is such a blessing to us" / "We treasure your ${guest.relationship}" / "You're the kind of ${guest.relationship} everyone wishes for"
+   ` : ''}
+
+7. MATCH TONE "${details.tone}":
+   ${details.tone === 'formal' ? 'Professional, respectful, proper' :
+     details.tone === 'warm' ? 'Loving, affectionate, tender' :
+     details.tone === 'casual' ? 'Relaxed, conversational' :
+     details.tone === 'heartfelt' ? 'Emotional, sincere, touching' :
+     details.tone === 'friendly' ? 'Upbeat, cheerful, personable' :
+     details.tone === 'elegant' ? 'Refined, graceful, sophisticated' :
+     details.tone === 'playful' ? 'Fun, light, cheerful' :
+     'Honest, genuine, authentic'}
+
+8. SIGN-OFF (match tone):
+   ${details.tone === 'formal' ? '"With sincere gratitude,"' :
+     details.tone === 'warm' ? '"With love," or "Love always,"' :
+     details.tone === 'casual' ? '"Love," or "XO,"' :
+     details.tone === 'heartfelt' ? '"All our love," or "With all our hearts,"' :
+     details.tone === 'friendly' ? '"Warmly," or "With warmth,"' :
+     details.tone === 'elegant' ? '"With gratitude," or "Gratefully,"' :
+     details.tone === 'playful' ? '"Hugs," or "XOXO,"' :
+     '"With warmest regards," or "Sincerely,"'}
+   ${details.names}
+
+WRITE THE NOTE NOW - INCLUDE ALL PARTS:
+1. Greeting on its own line: "${firstName}," or "Dear ${firstName}," or "Hi ${firstName},"
+2. Message body (4-6 sentences) - start on next line after greeting
+3. Sign-off line: ${details.tone === 'formal' ? '"With sincere gratitude,"' :
+     details.tone === 'warm' ? '"With love,"' :
+     details.tone === 'casual' ? '"Love,"' :
+     details.tone === 'heartfelt' ? '"All our love,"' :
+     details.tone === 'friendly' ? '"Warmly,"' :
+     details.tone === 'elegant' ? '"With gratitude,"' :
+     details.tone === 'playful' ? '"Hugs,"' :
+     '"With warmest regards,"'}
+4. Your name on the last line: ${details.names}
+
+Make it completely unique from previous notes with natural flow!`;
+
+                    console.log('Calling Claude API via Netlify function for:', firstName);
+
+                    // Call our secure Netlify function instead of Claude API directly
+                    const response = await fetch('/.netlify/functions/generate-message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            prompt: prompt
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Claude API error:', errorText);
+                        console.error('Full error response:', errorText);
+                        // Don't show alert for every guest, just log it
+                        return generateNote(guest); // Fallback to template
+                    }
+
+                    const data = await response.json();
+                    const generatedNote = data.content[0].text.trim();
+                    console.log('Generated unique note for', firstName, ':', generatedNote.substring(0, 100));
+                    return generatedNote;
+                } catch (error) {
+                    console.error('Error generating note with AI:', error);
+                    console.error('Error details:', error.message);
+                    // Don't show alert, just use fallback
+                    return generateNote(guest); // Fallback to template
+                }
+            };
+
+            const handleGenerate = async () => {
+                if (!guests.length) {
+                    alert('Please add guests first!');
+                    return;
+                }
+
+                // Show loading state
+                const generateButton = document.querySelector('.btn-primary');
+                if (generateButton) {
+                    generateButton.textContent = 'Generating personalized notes...';
+                    generateButton.disabled = true;
+                }
+
+                try {
+                    const generated = [];
+                    for (const g of guests) {
+                        const content = await generateNoteWithAI(g);
+                        generated.push({
+                            guestName: g.name,
+                            gift: g.gift,
+                            content: content,
+                            addr: g.addr,
+                            city: g.city,
+                            state: g.state,
+                            zip: g.zip
+                        });
+                    }
+
+                    setNotes(generated);
+                    setStep(5); // Go directly to download
+                } catch (error) {
+                    alert('Error generating notes. Please try again.');
+                    console.error(error);
+                } finally {
+                    if (generateButton) {
+                        generateButton.textContent = 'Generate Cards →';
+                        generateButton.disabled = false;
+                    }
+                }
+            };
+
+            const generateCardsPDF = async () => {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'in', format: [4.25, 5.5] });
+
+                // Show loading message
+                const generateButton = document.querySelector('.btn-primary');
+                const originalText = generateButton ? generateButton.textContent : '';
+                if (generateButton) {
+                    generateButton.textContent = 'Generating PDF with fonts...';
+                    generateButton.disabled = true;
+                }
+                
+                try {
+                    // Create a temporary container for rendering cards
+                    const tempContainer = document.createElement('div');
+                    tempContainer.style.position = 'fixed';
+                    tempContainer.style.left = '-9999px';
+                    tempContainer.style.top = '0';
+                    document.body.appendChild(tempContainer);
+
+                    for (let i = 0; i < notes.length; i++) {
+                        const note = notes[i];
+                        if (i > 0) pdf.addPage();
+
+                        // Create a card element with actual HTML/CSS
+                        const cardElement = document.createElement('div');
+                        cardElement.style.width = '825px'; // 5.5 inches * 150 DPI
+                        cardElement.style.height = '637px'; // 4.25 inches * 150 DPI
+                        cardElement.style.backgroundColor = details.color;
+                        cardElement.style.padding = '75px';
+                        cardElement.style.boxSizing = 'border-box';
+                        cardElement.style.fontFamily = `'${details.font === 'times' ? 'Times New Roman' : details.font === 'dancing' ? 'Dancing Script' : details.font === 'caveat' ? 'Caveat' : details.font === 'kalam' ? 'Kalam' : details.font === 'vibes' ? 'Great Vibes' : details.font === 'satisfy' ? 'Satisfy' : details.font === 'palatino' ? 'Palatino Linotype' : 'Garamond'}', ${details.font.includes('dancing') || details.font.includes('vibes') || details.font.includes('satisfy') || details.font.includes('caveat') || details.font.includes('kalam') ? 'cursive' : 'serif'}`;
+                        cardElement.style.fontSize = '18px';
+                        cardElement.style.color = '#282828';
+                        cardElement.style.whiteSpace = 'pre-line';
+                        cardElement.style.lineHeight = '1.6';
+                        cardElement.style.position = 'relative';
+
+                        // Add pattern overlay if needed
+                        if (details.design === 'floral') {
+                            // Create a more visible floral pattern with multiple flower shapes
+                            const floralPattern = `
+                                radial-gradient(circle at 10% 20%, rgba(0,0,0,0.06) 2px, transparent 2px),
+                                radial-gradient(circle at 30% 15%, rgba(0,0,0,0.06) 2px, transparent 2px),
+                                radial-gradient(circle at 25% 25%, rgba(0,0,0,0.06) 2px, transparent 2px),
+                                radial-gradient(circle at 15% 30%, rgba(0,0,0,0.06) 2px, transparent 2px),
+                                radial-gradient(circle at 20% 35%, rgba(0,0,0,0.06) 2px, transparent 2px)
+                            `;
+                            cardElement.style.backgroundImage = floralPattern;
+                            cardElement.style.backgroundSize = '80px 80px';
+                            cardElement.style.backgroundColor = details.color;
+                        } else if (details.design === 'dots') {
+                            cardElement.style.backgroundImage = `radial-gradient(circle, rgba(0,0,0,0.08) 2px, transparent 2px)`;
+                            cardElement.style.backgroundSize = '45px 45px';
+                            cardElement.style.backgroundColor = details.color;
+                        } else if (details.design === 'stripes') {
+                            cardElement.style.backgroundImage = `repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(0,0,0,0.05) 44px, rgba(0,0,0,0.05) 45px)`;
+                            cardElement.style.backgroundColor = details.color;
+                        } else if (details.design === 'hearts') {
+                            cardElement.style.backgroundImage = `radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%)`;
+                            cardElement.style.backgroundSize = '60px 60px';
+                            cardElement.style.backgroundColor = details.color;
+                        } else if (details.design === 'diamonds') {
+                            cardElement.style.backgroundImage = `linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.05) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.05) 75%)`;
+                            cardElement.style.backgroundSize = '45px 45px';
+                            cardElement.style.backgroundPosition = '0 0, 0 22.5px, 22.5px -22.5px, -22.5px 0px';
+                            cardElement.style.backgroundColor = details.color;
+                        } else if (details.design === 'waves') {
+                            cardElement.style.backgroundImage = `repeating-linear-gradient(0deg, transparent, transparent 45px, rgba(0,0,0,0.03) 45px, rgba(0,0,0,0.03) 46px)`;
+                            cardElement.style.backgroundColor = details.color;
+                        } else if (details.design === 'grid') {
+                            cardElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)`;
+                            cardElement.style.backgroundSize = '30px 30px';
+                            cardElement.style.backgroundColor = details.color;
+                        }
+
+                        // Clean up content: remove horizontal rules, excessive line breaks
+                        let cleanedContent = note.content
+                            .replace(/[-_*]{3,}/g, '')  // Remove horizontal rules (---, ___, ***)
+                            .replace(/\n{3,}/g, '\n\n')  // Remove excessive line breaks
+                            .trim();
+                        cardElement.innerText = cleanedContent;
+
+                        tempContainer.appendChild(cardElement);
+
+                        // Convert to canvas then to image
+                        const canvas = await html2canvas(cardElement, {
+                            scale: 2,
+                            backgroundColor: details.color,
+                            logging: false
+                        });
+
+                        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                        pdf.addImage(imgData, 'JPEG', 0, 0, 5.5, 4.25);
+
+                        tempContainer.removeChild(cardElement);
+                    }
+
+                    // Clean up
+                    document.body.removeChild(tempContainer);
+
+                    pdf.save('thank-you-cards.pdf');
+
+                    if (generateButton) {
+                        generateButton.textContent = originalText;
+                        generateButton.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                    alert('Error generating PDF. Please try again.');
+                    if (generateButton) {
+                        generateButton.textContent = originalText;
+                        generateButton.disabled = false;
+                    }
+                }
+            };
+
+            const generateRecipientLabelsPDF = () => {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const withAddr = notes.filter(n => n.addr && n.city);
+
+                    if (!withAddr.length) {
+                        alert('No guest addresses found! Make sure to add addresses for your guests.');
+                        return;
+                    }
+
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'in',
+                        format: 'letter'
+                    });
+
+                    // Avery 5160: 3 columns x 10 rows = 30 labels per page
+                    const labelW = 2.625, labelH = 1, cols = 3, marginL = 0.1875, marginT = 0.5;
+                    const gapX = 0.125;
+
+                    withAddr.forEach((note, i) => {
+                        if (i > 0 && i % 30 === 0) pdf.addPage();
+                        const pos = i % 30;
+                        const row = Math.floor(pos / cols);
+                        const col = pos % cols;
+                        const x = marginL + (col * (labelW + gapX));
+                        const y = marginT + (row * labelH);
+
+                        pdf.setFontSize(10);
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.setTextColor(0, 0, 0);
+
+                        // Guest name
+                        pdf.text(note.guestName || '', x + 0.1, y + 0.3);
+
+                        // Street address
+                        if (note.addr) {
+                            pdf.text(note.addr, x + 0.1, y + 0.5);
+                        }
+
+                        // City, State, ZIP
+                        if (note.city && note.state) {
+                            pdf.text(`${note.city}, ${note.state} ${note.zip || ''}`, x + 0.1, y + 0.7);
+                        }
+                    });
+
+                    pdf.save('recipient-labels.pdf');
+                    alert(`Successfully generated ${withAddr.length} recipient labels!`);
+                } catch (error) {
+                    console.error('Error generating recipient labels:', error);
+                    alert('Error generating labels. Please try again.');
+                }
+            };
+
+            const generateReturnLabelsPDF = () => {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    if (!details.returnAddr || !details.returnCity) {
+                        alert('Please add complete return address (street and city required)!');
+                        return;
+                    }
+
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'in',
+                        format: 'letter'
+                    });
+
+                    // Using Avery 5167 format: 4 labels per column, 20 per page (1/2" x 1-3/4")
+                    // But we'll use a more standard return label: 3 cols x 10 rows (matching recipient)
+                    const labelW = 2.625, labelH = 1, cols = 3, marginL = 0.1875, marginT = 0.5;
+                    const gapX = 0.125;
+                    const count = Math.max(notes.length, 30);
+
+                    for (let i = 0; i < count; i++) {
+                        if (i > 0 && i % 30 === 0) pdf.addPage();
+                        const pos = i % 30;
+                        const row = Math.floor(pos / cols);
+                        const col = pos % cols;
+                        const x = marginL + (col * (labelW + gapX));
+                        const y = marginT + (row * labelH);
+
+                        pdf.setFontSize(9);
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.setTextColor(0, 0, 0);
+
+                        // Name (use fullName if available, fallback to names)
+                        const nameForLabel = details.fullName || details.names;
+                        pdf.text(nameForLabel, x + 0.1, y + 0.3);
+
+                        // Street address
+                        if (details.returnAddr) {
+                            pdf.text(details.returnAddr, x + 0.1, y + 0.5);
+                        }
+
+                        // City, State, ZIP
+                        pdf.text(`${details.returnCity}, ${details.returnState} ${details.returnZip || ''}`, x + 0.1, y + 0.7);
+                    }
+
+                    pdf.save('return-labels.pdf');
+                    alert(`Successfully generated ${count} return address labels!`);
+                } catch (error) {
+                    console.error('Error generating return labels:', error);
+                    alert('Error generating labels. Please try again.');
+                }
+            };
+
+            const generateSealsPDF = () => {
+                const { jsPDF } = window.jspdf;
+
+                // Use the user-provided initials, or fall back to auto-generated
+                const getInitials = (n) => {
+                    const parts = n.split(/[& ]+/);
+                    if (parts.length >= 2) return parts[0].charAt(0) + parts[1].charAt(0);
+                    return n.substring(0, 2);
+                };
+                const initials = (details.initials || getInitials(details.names)).toUpperCase();
+                
+                const pdf = new jsPDF({
+                    unit: 'in',
+                    format: 'letter'
+                });
+                
+                const hexToRgb = (hex) => {
+                    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                    return result ? {
+                        r: parseInt(result[1], 16),
+                        g: parseInt(result[2], 16),
+                        b: parseInt(result[3], 16)
+                    } : { r: 248, g: 246, b: 243 };
+                };
+                const color = hexToRgb(details.color);
+                
+                // Layout: 3 columns x 4 rows = 12 seals per page
+                const sealDiameter = 1.5;
+                const cols = 3;
+                const rows = 4;
+                const pageWidth = 8.5;
+                const pageHeight = 11;
+                
+                // Calculate spacing to center the grid
+                const totalWidth = cols * sealDiameter;
+                const totalHeight = rows * sealDiameter;
+                const marginX = (pageWidth - totalWidth) / 2;
+                const marginY = (pageHeight - totalHeight) / 2;
+                
+                const count = notes.length * 5; // 5 seals per guest
+                
+                for (let i = 0; i < count; i++) {
+                    // Add new page every 12 seals
+                    if (i > 0 && i % 12 === 0) {
+                        pdf.addPage();
+                    }
+                    
+                    const pos = i % 12;
+                    const col = pos % cols;
+                    const row = Math.floor(pos / cols);
+                    
+                    const centerX = marginX + (col * sealDiameter) + (sealDiameter / 2);
+                    const centerY = marginY + (row * sealDiameter) + (sealDiameter / 2);
+                    const radius = sealDiameter / 2;
+                    
+                    // Background circle
+                    pdf.setFillColor(color.r, color.g, color.b);
+                    pdf.circle(centerX, centerY, radius, 'F');
+                    
+                    // Border design
+                    const borderColor = {
+                        r: Math.max(0, color.r - 40),
+                        g: Math.max(0, color.g - 40),
+                        b: Math.max(0, color.b - 40)
+                    };
+                    pdf.setDrawColor(borderColor.r, borderColor.g, borderColor.b);
+                    
+                    if (details.sealDesign === 'classic') {
+                        pdf.setLineWidth(0.025);
+                        pdf.circle(centerX, centerY, radius - 0.08, 'S');
+                    } else if (details.sealDesign === 'double') {
+                        pdf.setLineWidth(0.02);
+                        pdf.circle(centerX, centerY, radius - 0.08, 'S');
+                        pdf.circle(centerX, centerY, radius - 0.18, 'S');
+                    } else if (details.sealDesign === 'ornate') {
+                        pdf.setLineWidth(0.025);
+                        pdf.circle(centerX, centerY, radius - 0.08, 'S');
+                        pdf.setFillColor(borderColor.r, borderColor.g, borderColor.b);
+                        for (let angle = 0; angle < 360; angle += 30) {
+                            const rad = (angle * Math.PI) / 180;
+                            const dotX = centerX + Math.cos(rad) * (radius - 0.18);
+                            const dotY = centerY + Math.sin(rad) * (radius - 0.18);
+                            pdf.circle(dotX, dotY, 0.025, 'F');
+                        }
+                    } else if (details.sealDesign === 'scalloped') {
+                        pdf.setLineWidth(0.02);
+                        const numScallops = 16;
+                        for (let angle = 0; angle < 360; angle += 360 / numScallops) {
+                            const rad = (angle * Math.PI) / 180;
+                            const scX = centerX + Math.cos(rad) * (radius - 0.12);
+                            const scY = centerY + Math.sin(rad) * (radius - 0.12);
+                            pdf.circle(scX, scY, 0.1, 'S');
+                        }
+                        pdf.circle(centerX, centerY, radius - 0.25, 'S');
+                    } else if (details.sealDesign === 'botanical') {
+                        pdf.setLineWidth(0.02);
+                        pdf.circle(centerX, centerY, radius - 0.08, 'S');
+                        pdf.setFillColor(borderColor.r, borderColor.g, borderColor.b);
+                        // Draw small flower shapes around circle (6 flowers)
+                        for (let a = 0; a < 360; a += 60) {
+                            const rad = (a * Math.PI) / 180;
+                            const fx = centerX + Math.cos(rad) * (radius - 0.18);
+                            const fy = centerY + Math.sin(rad) * (radius - 0.18);
+
+                            // Draw a 5-petal flower
+                            const petalRadius = 0.025;
+                            for (let p = 0; p < 5; p++) {
+                                const petalAngle = (p * 72) * Math.PI / 180;
+                                const px = fx + Math.cos(petalAngle) * 0.03;
+                                const py = fy + Math.sin(petalAngle) * 0.03;
+                                pdf.circle(px, py, petalRadius, 'F');
+                            }
+                            // Center of flower
+                            pdf.circle(fx, fy, 0.015, 'F');
+                        }
+                    } else if (details.sealDesign === 'vintage') {
+                        pdf.setLineDash([0.04, 0.04]);
+                        pdf.setLineWidth(0.03);
+                        pdf.circle(centerX, centerY, radius - 0.08, 'S');
+                        pdf.setLineDash([]);
+                        pdf.setLineWidth(0.02);
+                        pdf.circle(centerX, centerY, radius - 0.18, 'S');
+                    } else if (details.sealDesign === 'art-deco') {
+                        pdf.setLineWidth(0.03);
+                        const octRadius = radius - 0.08;
+                        const octPoints = [];
+                        for (let a = 0; a < 8; a++) {
+                            const angle = (a * 45 - 22.5) * Math.PI / 180;
+                            octPoints.push([
+                                centerX + Math.cos(angle) * octRadius,
+                                centerY + Math.sin(angle) * octRadius
+                            ]);
+                        }
+                        for (let p = 0; p < octPoints.length; p++) {
+                            const nextP = (p + 1) % octPoints.length;
+                            pdf.line(octPoints[p][0], octPoints[p][1], octPoints[nextP][0], octPoints[nextP][1]);
+                        }
+                        pdf.setFillColor(borderColor.r, borderColor.g, borderColor.b);
+                        for (let a = 0; a < 8; a += 2) {
+                            const angle = (a * 45 - 22.5) * Math.PI / 180;
+                            const dx = centerX + Math.cos(angle) * (octRadius - 0.2);
+                            const dy = centerY + Math.sin(angle) * (octRadius - 0.2);
+                            pdf.circle(dx, dy, 0.025, 'F');
+                        }
+                    } else if (details.sealDesign === 'minimal') {
+                        pdf.setLineWidth(0.015);
+                        pdf.circle(centerX, centerY, radius - 0.08, 'S');
+                    }
+                    
+                    // Initials - use selected font style
+                    pdf.setTextColor(50, 50, 50);
+
+                    // Map the selected font to a jsPDF font style for seals
+                    const sealFontMapping = {
+                        'times': ['times', 'normal', 28],
+                        'dancing': ['times', 'italic', 30],
+                        'caveat': ['times', 'italic', 28],
+                        'kalam': ['times', 'italic', 28],
+                        'vibes': ['times', 'italic', 32],
+                        'satisfy': ['times', 'italic', 30],
+                        'palatino': ['times', 'normal', 28],
+                        'garamond': ['times', 'normal', 28]
+                    };
+
+                    const [sealFont, sealStyle, sealSize] = sealFontMapping[details.font] || ['helvetica', 'bold', 28];
+                    pdf.setFont(sealFont, sealStyle);
+                    pdf.setFontSize(sealSize);
+                    const textWidth = pdf.getTextWidth(initials);
+                    pdf.text(initials, centerX - (textWidth / 2), centerY + 0.1);
+                }
+                
+                pdf.save('envelope-seals.pdf');
+            };
+
+            // STEP 1: Hero
+            if (step === 1) {
+                return (
+                    <>
+                        <div className="hero-section">
+                            <div className="brand-badge">By Brite.co</div>
+                            <h1>Thank You Note Generator</h1>
+                            <p className="hero-subtitle">Upload Your Guest List. Download Everything.</p>
+                            <p className="hero-description">The easiest DIY solution — cards, labels & seals ready to print</p>
+                            <div style={{
+                                background: 'linear-gradient(135deg, #F0F7F6 0%, #FFF9F5 100%)',
+                                padding: '1.5rem 2rem',
+                                borderRadius: '16px',
+                                marginTop: '2rem',
+                                display: 'inline-block'
+                            }}>
+                                <div style={{fontSize: '1.25rem', fontWeight: '600', color: '#2D5853', marginBottom: '0.5rem'}}>
+                                    ✨ Always Free to Use
+                                </div>
+                                <div style={{fontSize: '1rem', color: '#666'}}>
+                                    Save $200-500 vs. professional stationery services
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="features-grid">
+                            <div className="feature-card">
+                                <div className="feature-icon">💌</div>
+                                <h3>Beautiful Cards</h3>
+                                <p>5.5" x 4.25" folded cards with custom designs</p>
+                            </div>
+                            <div className="feature-card">
+                                <div className="feature-icon">🏷️</div>
+                                <h3>Address Labels</h3>
+                                <p>Print-ready Avery 5160 format</p>
+                            </div>
+                            <div className="feature-card">
+                                <div className="feature-icon">💫</div>
+                                <h3>Custom Seals</h3>
+                                <p>8 design styles with your initials</p>
+                            </div>
+                        </div>
+
+                        <div className="how-it-works">
+                            <h2>How It Works</h2>
+                            <div className="steps-grid">
+                                <div className="step">
+                                    <div className="step-number">1</div>
+                                    <h3>Enter Details</h3>
+                                    <p>Add your address & names</p>
+                                </div>
+                                <div className="step">
+                                    <div className="step-number">2</div>
+                                    <h3>Add Guests</h3>
+                                    <p>CSV or manual entry</p>
+                                </div>
+                                <div className="step">
+                                    <div className="step-number">3</div>
+                                    <h3>Customize</h3>
+                                    <p>Choose design options</p>
+                                </div>
+                                <div className="step">
+                                    <div className="step-number">4</div>
+                                    <h3>Download</h3>
+                                    <p>Print locally or online</p>
+                                </div>
+                            </div>
+                            <div className="tip">
+                                💡 Use whatever parts you need - cards only, labels only, or the full package!
+                            </div>
+                        </div>
+
+                        <div style={{textAlign: 'center', paddingBottom: '3rem'}}>
+                            <button className="btn-primary" onClick={() => setStep(2)}>
+                                Get Started - It's Free →
+                            </button>
+                        </div>
+                    </>
+                );
+            }
+
+            // STEP 2: Your Details
+            if (step === 2) {
+                return (
+                    <div className="container">
+                        <div className="back-link" onClick={() => setStep(1)}>
+                            ← Back
+                        </div>
+                        <h2 className="page-title">Your Return Address</h2>
+                        <p className="page-subtitle">For return labels and finding nearby print shops</p>
+
+                        <div className="card">
+                            <div className="form-grid">
+                                <div className="form-section">
+                                    <label>Full Name for Return Labels</label>
+                                    <input
+                                        value={details.fullName}
+                                        onChange={(e) => setDetails({...details, fullName: e.target.value})}
+                                        placeholder="Sarah & Mike Johnson"
+                                    />
+                                    <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
+                                        Your full name(s) for the return address labels 🏷️
+                                    </p>
+                                </div>
+                                <div className="form-section">
+                                    <label>Card Signature</label>
+                                    <input
+                                        value={details.names}
+                                        onChange={(e) => setDetails({...details, names: e.target.value})}
+                                        placeholder="Sarah & Mike"
+                                    />
+                                    <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
+                                        How you'd like to sign your cards ✍️
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="form-section">
+                                <label>Initials for Envelope Seals</label>
+                                <input
+                                    value={details.initials}
+                                    onChange={(e) => setDetails({...details, initials: e.target.value.toUpperCase()})}
+                                    placeholder="SM"
+                                    maxLength="4"
+                                />
+                                <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
+                                    These will appear on your decorative envelope seals 💫
+                                </p>
+                            </div>
+
+                            <div className="form-section" style={{position: 'relative'}}>
+                                <label>Street Address</label>
+                                <input 
+                                    value={details.returnAddr}
+                                    onChange={(e) => handleAddressInput(e.target.value, 'returnAddr')}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                    placeholder="123 Main Street"
+                                />
+                                {showSuggestions && addressSuggestions.length > 0 && (
+                                    <div className="address-suggestions">
+                                        {addressSuggestions.map((addr, i) => (
+                                            <div 
+                                                key={i}
+                                                className="address-suggestion"
+                                                onClick={() => {
+                                                    setDetails({...details, returnAddr: addr});
+                                                    setShowSuggestions(false);
+                                                }}
+                                            >
+                                                {addr}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="form-grid">
+                                <input 
+                                    value={details.returnCity}
+                                    onChange={(e) => setDetails({...details, returnCity: e.target.value})}
+                                    placeholder="City"
+                                />
+                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem'}}>
+                                    <input 
+                                        value={details.returnState}
+                                        onChange={(e) => setDetails({...details, returnState: e.target.value.toUpperCase()})}
+                                        placeholder="ST"
+                                        maxLength="2"
+                                    />
+                                    <input 
+                                        value={details.returnZip}
+                                        onChange={(e) => setDetails({...details, returnZip: e.target.value})}
+                                        placeholder="ZIP"
+                                    />
+                                </div>
+                            </div>
+
+                            <button 
+                                className="btn-primary" 
+                                style={{width: '100%', marginTop: '1.5rem'}}
+                                onClick={() => setStep(3)}
+                                disabled={!details.names || !details.returnAddr}
+                            >
+                                Continue to Add Guests →
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // STEP 3: Add Guests
+            if (step === 3) {
+                return (
+                    <div className="container">
+                        <div className="back-link" onClick={() => setStep(2)}>
+                            ← Back
+                        </div>
+                        <h2 className="page-title">Add Your Guests</h2>
+
+                        {!inputMethod && (
+                            <div className="card">
+                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem'}}>
+                                    <button 
+                                        className="btn-secondary" 
+                                        style={{height: '120px', fontSize: '1.125rem'}}
+                                        onClick={() => setInputMethod('bulk')}
+                                    >
+                                        📊 Upload CSV
+                                    </button>
+                                    <button 
+                                        className="btn-secondary"
+                                        style={{height: '120px', fontSize: '1.125rem'}}
+                                        onClick={() => setInputMethod('manual')}
+                                    >
+                                        ✍️ Enter Manually
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {inputMethod === 'bulk' && (
+                            <div className="card">
+                                {guests.length === 0 ? (
+                                    <>
+                                        <div 
+                                            className={`upload-zone ${dragOver ? 'drag-over' : ''}`}
+                                            onClick={() => fileInputRef.current?.click()}
+                                            onDragOver={handleDragOver}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={handleDrop}
+                                        >
+                                            <div className="upload-icon">📄</div>
+                                            <div className="upload-text">Click to Upload CSV</div>
+                                            <div className="upload-hint">or drag and drop</div>
+                                        </div>
+                                        <div style={{marginTop: '1rem', padding: '1rem', background: '#FFF9F5', borderRadius: '8px', fontSize: '0.875rem', color: '#666', textAlign: 'left'}}>
+                                            <strong style={{color: '#2D5853'}}>CSV Format:</strong><br/>
+                                            Name, Gift, Special Moment, Relationship, Address, City, State, Zip<br/>
+                                            <em style={{fontSize: '0.8rem', color: '#999'}}>Headers can also be: "Guest Name", "Gift Description", "Special Memory", "Relation", etc.</em>
+                                            <br/><br/>
+                                            <button
+                                                onClick={() => {
+                                                    const csv = `Name,Gift,Special Moment,Relationship,Address,City,State,Zip
+"Sarah Johnson","wine glasses","heartfelt toast","friend","123 Main St","Boston","MA","02101"
+"Mike Smith","picture frame","traveling so far","cousin","456 Oak Ave","Portland","OR","97201"
+"Emily Davis","kitchen mixer","","coworker","789 Pine Rd","Austin","TX","78701"`;
+                                                    const blob = new Blob([csv], { type: 'text/csv' });
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = 'guest-list-example.csv';
+                                                    a.click();
+                                                    URL.revokeObjectURL(url);
+                                                }}
+                                                style={{
+                                                    background: '#2D5853',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '0.5rem 1rem',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: '600'
+                                                }}
+                                            >
+                                                📥 Download Example CSV
+                                            </button>
+                                        </div>
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept=".csv"
+                                            onChange={handleFileUpload}
+                                        />
+                                        <button className="btn-secondary" style={{marginTop: '1rem'}} onClick={() => setInputMethod(null)}>
+                                            ← Choose Different Method
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div style={{marginBottom: '1.5rem', padding: '1rem', background: '#F0F7F6', borderRadius: '8px'}}>
+                                            <strong style={{color: '#2D5853', fontSize: '1.125rem'}}>
+                                                ✓ {guests.length} guests uploaded successfully
+                                            </strong>
+                                        </div>
+                                        <div className="guest-list" style={{maxHeight: '300px', marginBottom: '1.5rem'}}>
+                                            {guests.slice(0, 10).map(g => (
+                                                <div key={g.id} className="guest-item">
+                                                    <div className="guest-item-info">
+                                                        <strong>{g.name}</strong>
+                                                        {g.gift && <span>Gift: {g.gift}</span>}
+                                                        {g.city && <span> • {g.city}, {g.state}</span>}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {guests.length > 10 && (
+                                                <div style={{textAlign: 'center', padding: '1rem', color: '#666'}}>
+                                                    + {guests.length - 10} more guests
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div style={{display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem'}}>
+                                            <button 
+                                                className="btn-secondary" 
+                                                onClick={() => {
+                                                    setGuests([]);
+                                                    setInputMethod(null);
+                                                }}
+                                            >
+                                                ← Start Over
+                                            </button>
+                                            <button 
+                                                className="btn-primary"
+                                                onClick={() => setStep(4)}
+                                            >
+                                                Continue to Design →
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {inputMethod === 'manual' && (
+                            <>
+                                <div className="card">
+                                    <div className="form-grid">
+                                        <div>
+                                            <label>Guest Name *</label>
+                                            <input 
+                                                value={currentGuest.name}
+                                                onChange={(e) => setCurrentGuest({...currentGuest, name: e.target.value})}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label>Gift</label>
+                                            <input 
+                                                value={currentGuest.gift}
+                                                onChange={(e) => setCurrentGuest({...currentGuest, gift: e.target.value})}
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="form-section">
+                                        <label>Special Moment (Optional)</label>
+                                        <textarea
+                                            value={currentGuest.memo}
+                                            onChange={(e) => setCurrentGuest({...currentGuest, memo: e.target.value})}
+                                            rows="2"
+                                            placeholder="e.g., 'heartfelt toast' or 'traveling so far to be there'"
+                                        />
+                                        <p style={{fontSize: '0.875rem', color: '#666', marginTop: '0.5rem'}}>
+                                            Will appear as "Your [special moment] was such a special moment."
+                                        </p>
+                                    </div>
+
+                                    <div className="form-section">
+                                        <label>Relationship (Optional)</label>
+                                        <input
+                                            value={currentGuest.relationship}
+                                            onChange={(e) => setCurrentGuest({...currentGuest, relationship: e.target.value})}
+                                            placeholder="e.g., friend, cousin, aunt, colleague"
+                                        />
+                                        <p style={{fontSize: '0.875rem', color: '#666', marginTop: '0.5rem'}}>
+                                            Will add "You're such a wonderful [relationship]."
+                                        </p>
+                                    </div>
+
+                                    <div className="form-section">
+                                        <label>Mailing Address</label>
+                                        <input 
+                                            value={currentGuest.addr}
+                                            onChange={(e) => setCurrentGuest({...currentGuest, addr: e.target.value})}
+                                            style={{marginBottom: '0.75rem'}}
+                                        />
+                                        <div className="form-grid">
+                                            <input 
+                                                value={currentGuest.city}
+                                                onChange={(e) => setCurrentGuest({...currentGuest, city: e.target.value})}
+                                                placeholder="City"
+                                            />
+                                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem'}}>
+                                                <input 
+                                                    value={currentGuest.state}
+                                                    onChange={(e) => setCurrentGuest({...currentGuest, state: e.target.value.toUpperCase()})}
+                                                    placeholder="ST"
+                                                    maxLength="2"
+                                                />
+                                                <input 
+                                                    value={currentGuest.zip}
+                                                    onChange={(e) => setCurrentGuest({...currentGuest, zip: e.target.value})}
+                                                    placeholder="ZIP"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button className="btn-secondary" onClick={addGuest}>
+                                        + Add Guest
+                                    </button>
+                                </div>
+
+                                {guests.length > 0 && (
+                                    <div className="card">
+                                        <h3>Guests ({guests.length})</h3>
+                                        <div className="guest-list">
+                                            {guests.map(g => (
+                                                <div key={g.id} className="guest-item">
+                                                    <div className="guest-item-info">
+                                                        <strong>{g.name}</strong>
+                                                        {g.gift && <span>Gift: {g.gift}</span>}
+                                                        {g.city && <span> • {g.city}, {g.state}</span>}
+                                                    </div>
+                                                    <button className="delete-btn" onClick={() => deleteGuest(g.id)}>×</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <button 
+                                    className="btn-primary"
+                                    style={{width: '100%'}}
+                                    onClick={() => setStep(4)}
+                                    disabled={guests.length === 0}
+                                >
+                                    Continue to Design →
+                                </button>
+                            </>
+                        )}
+                    </div>
+                );
+            }
+
+            // STEP 4: Design
+            if (step === 4) {
+                return (
+                    <div className="container">
+                        <div className="back-link" onClick={() => setStep(3)}>
+                            ← Back
+                        </div>
+                        <h2 className="page-title">Customize Design</h2>
+                        <p className="page-subtitle">{guests.length} guests</p>
+
+                        <div className="card">
+                            <div className="form-grid">
+                                <div>
+                                    <label>Occasion</label>
+                                    <select value={details.occasion} onChange={(e) => setDetails({...details, occasion: e.target.value})}>
+                                        {Object.entries(occasions).map(([k, v]) => (
+                                            <option key={k} value={k}>{v}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Message Tone</label>
+                                    <select value={details.tone} onChange={(e) => setDetails({...details, tone: e.target.value})}>
+                                        {tones.map(t => (
+                                            <option key={t.id} value={t.id}>{t.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div className="card">
+                            <label>Background Color</label>
+                            <div className="option-grid-4">
+                                {colorPresets.map(c => (
+                                    <div
+                                        key={c.value}
+                                        className={`option-box ${details.color === c.value ? 'selected' : ''}`}
+                                        onClick={() => setDetails({...details, color: c.value})}
+                                    >
+                                        <div className="color-swatch" style={{backgroundColor: c.value}}></div>
+                                        <h4>{c.name}</h4>
+                                    </div>
+                                ))}
+                            </div>
+                            <div style={{marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                                <label style={{marginBottom: 0}}>Or choose custom color:</label>
+                                <input
+                                    type="color"
+                                    value={details.color}
+                                    onChange={(e) => setDetails({...details, color: e.target.value})}
+                                    style={{width: '60px', height: '40px', cursor: 'pointer', border: '2px solid #C8956B', borderRadius: '8px'}}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <label>Font</label>
+                            <div className="option-grid-4">
+                                {fonts.map(f => (
+                                    <div
+                                        key={f.id}
+                                        className={`option-box ${details.font === f.id ? 'selected' : ''}`}
+                                        onClick={() => setDetails({...details, font: f.id})}
+                                    >
+                                        <div className={`font-preview font-${f.id}`}>Aa</div>
+                                        <h4>{f.name}</h4>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <label>Pattern</label>
+                            <div className="option-grid-4">
+                                {patterns.map(p => (
+                                    <div
+                                        key={p.id}
+                                        className={`option-box ${details.design === p.id ? 'selected' : ''}`}
+                                        onClick={() => setDetails({...details, design: p.id})}
+                                    >
+                                        <div className={`pattern-preview pattern-${p.id}`}></div>
+                                        <h4>{p.name}</h4>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <label>Seal Design</label>
+                            <div className="option-grid-4">
+                                {sealDesigns.map(s => (
+                                    <div
+                                        key={s.id}
+                                        className={`option-box ${details.sealDesign === s.id ? 'selected' : ''}`}
+                                        onClick={() => setDetails({...details, sealDesign: s.id})}
+                                    >
+                                        <div
+                                            className={`seal-preview-box seal-${s.id}`}
+                                            style={{
+                                                backgroundColor: details.color,
+                                                color: details.color === '#FFFFFF' ? '#999' : '#666'
+                                            }}
+                                        >
+                                            {details.initials || (details.names ? details.names.substring(0,2).toUpperCase() : 'AB')}
+                                        </div>
+                                        <h4>{s.name}</h4>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <button
+                            className="btn-primary"
+                            style={{width: '100%'}}
+                            onClick={handleGenerate}
+                        >
+                            Generate Cards →
+                        </button>
+                    </div>
+                );
+            }
+
+            // STEP 5: Download
+            if (step === 5) {
+                return (
+                    <div className="container">
+                        <h2 className="page-title">Ready! 🎉</h2>
+                        <p className="page-subtitle">{notes.length} personalized cards</p>
+
+                        <div className="download-grid">
+                            <div className="download-card">
+                                <div className="download-icon">💌</div>
+                                <h4>Cards</h4>
+                                <p>5.5" x 4.25"</p>
+                                <button className="btn-primary" style={{width: '100%'}} onClick={generateCardsPDF}>📥 Download</button>
+                            </div>
+                            <div className="download-card">
+                                <div className="download-icon">🏷️</div>
+                                <h4>Recipient Labels</h4>
+                                <p>Avery 5160</p>
+                                <button className="btn-primary" style={{width: '100%'}} onClick={generateRecipientLabelsPDF}>📥 Download</button>
+                            </div>
+                            <div className="download-card">
+                                <div className="download-icon">📮</div>
+                                <h4>Return Labels</h4>
+                                <p>Your address</p>
+                                <button className="btn-primary" style={{width: '100%'}} onClick={generateReturnLabelsPDF}>📥 Download</button>
+                            </div>
+                            <div className="download-card">
+                                <div className="download-icon">💫</div>
+                                <h4>Seals</h4>
+                                <p>1.5" round (5 per guest)</p>
+                                <button className="btn-primary" style={{width: '100%'}} onClick={generateSealsPDF}>📥 Download</button>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{marginTop: '2rem'}}>
+                            <h3 style={{color: '#2D5853', marginBottom: '1rem'}}>📦 Required Supplies</h3>
+                            <p style={{color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem'}}>Shop on Amazon:</p>
+
+                            <div style={{display: 'grid', gap: '0.75rem'}}>
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0'}}>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                                        <span style={{fontSize: '1.25rem'}}>💌</span>
+                                        <div>
+                                            <strong style={{color: '#2D5853'}}>Card Stock</strong>
+                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— for the cards</span>
+                                        </div>
+                                    </div>
+                                    <a
+                                        href="https://www.amazon.com/s?k=110lb+cardstock+8.5x11"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            background: '#2D5853',
+                                            color: 'white',
+                                            padding: '0.4rem 0.9rem',
+                                            borderRadius: '6px',
+                                            textDecoration: 'none',
+                                            fontWeight: '500',
+                                            fontSize: '0.875rem'
+                                        }}
+                                    >
+                                        Shop →
+                                    </a>
+                                </div>
+
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0'}}>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                                        <span style={{fontSize: '1.25rem'}}>🏷️</span>
+                                        <div>
+                                            <strong style={{color: '#2D5853'}}>Address Labels</strong>
+                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— for recipient & return labels</span>
+                                        </div>
+                                    </div>
+                                    <a
+                                        href="https://www.amazon.com/s?k=avery+5160+labels"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            background: '#2D5853',
+                                            color: 'white',
+                                            padding: '0.4rem 0.9rem',
+                                            borderRadius: '6px',
+                                            textDecoration: 'none',
+                                            fontWeight: '500',
+                                            fontSize: '0.875rem'
+                                        }}
+                                    >
+                                        Shop →
+                                    </a>
+                                </div>
+
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0'}}>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                                        <span style={{fontSize: '1.25rem'}}>💫</span>
+                                        <div>
+                                            <strong style={{color: '#2D5853'}}>Round Sticker Labels</strong>
+                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— for the seals</span>
+                                        </div>
+                                    </div>
+                                    <a
+                                        href="https://www.amazon.com/s?k=1.5+inch+round+printable+sticker+labels"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            background: '#2D5853',
+                                            color: 'white',
+                                            padding: '0.4rem 0.9rem',
+                                            borderRadius: '6px',
+                                            textDecoration: 'none',
+                                            fontWeight: '500',
+                                            fontSize: '0.875rem'
+                                        }}
+                                    >
+                                        Shop →
+                                    </a>
+                                </div>
+
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0'}}>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                                        <span style={{fontSize: '1.25rem'}}>✉️</span>
+                                        <div>
+                                            <strong style={{color: '#2D5853'}}>Envelopes</strong>
+                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— for mailing the cards</span>
+                                        </div>
+                                    </div>
+                                    <a
+                                        href="https://www.amazon.com/s?k=a2+envelopes+4.375+x+5.75"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            background: '#2D5853',
+                                            color: 'white',
+                                            padding: '0.4rem 0.9rem',
+                                            borderRadius: '6px',
+                                            textDecoration: 'none',
+                                            fontWeight: '500',
+                                            fontSize: '0.875rem'
+                                        }}
+                                    >
+                                        Shop →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="print-shops">
+                            <h4>🖨️ Nearby Print Shops</h4>
+                            {nearbyShops.length > 0 ? (
+                                <div className="shops-grid">
+                                    {nearbyShops.map((shop, i) => (
+                                        <div key={i} className="shop-item">
+                                            <strong>{shop.name}</strong>
+                                            <div className="shop-distance">📍 {shop.distance} away</div>
+                                            <p>{shop.address}</p>
+                                            <p>{shop.phone}</p>
+                                            <a href={shop.url} target="_blank" rel="noopener noreferrer">Get Directions →</a>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p style={{textAlign: 'center', color: '#666'}}>
+                                    Finding nearest print shops based on your address...
+                                </p>
+                            )}
+                        </div>
+
+                        <div style={{textAlign: 'center', marginTop: '2rem'}}>
+                            <button 
+                                onClick={() => {
+                                    if (confirm('Start over?')) {
+                                        setStep(1);
+                                        setGuests([]);
+                                        setNotes([]);
+                                        setInputMethod(null);
+                                    }
+                                }}
+                                style={{background: 'none', border: 'none', color: '#666', cursor: 'pointer', textDecoration: 'underline'}}
+                            >
+                                🔄 Start Over
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
