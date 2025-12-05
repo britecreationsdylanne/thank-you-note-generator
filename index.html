@@ -601,6 +601,14 @@
 </head>
 <body>
     <div id="root"></div>
+    <footer style="text-align: center; padding: 2rem 1rem; background: #F8F6F3; margin-top: 3rem; border-top: 1px solid #E8E6E3;">
+        <p style="margin: 0; color: #666; font-size: 0.875rem;">
+            Made with ❤️ •
+            <a href="https://github.com/britecreationsdylanne/thank-you-note-generator" target="_blank" rel="noopener noreferrer" style="color: #2D5853; text-decoration: none; font-weight: 500; margin-left: 0.5rem;">
+                View on GitHub →
+            </a>
+        </p>
+    </footer>
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
 
@@ -619,13 +627,14 @@
                 sealDesign: 'classic',
                 selectedSealVariation: 0,
                 returnAddr: '',
+                returnAddr2: '',
                 returnCity: '',
                 returnState: '',
                 returnZip: ''
             });
             const [guests, setGuests] = useState([]);
             const [currentGuest, setCurrentGuest] = useState({
-                name: '', gift: '', memo: '', relationship: '', addr: '', city: '', state: '', zip: ''
+                name: '', gift: '', memo: '', relationship: '', addr: '', addr2: '', city: '', state: '', zip: ''
             });
             const [notes, setNotes] = useState([]);
             const [editingNoteIndex, setEditingNoteIndex] = useState(null);
@@ -1119,6 +1128,7 @@
                             memo: r.Memo || r.memo || r['Special Memory'] || r['Special Moment'] || '',
                             relationship: r.Relationship || r.relationship || r['Relation'] || '',
                             addr: r.Address || r.address || r.addr || r['Street Address'] || '',
+                            addr2: r.Address2 || r.address2 || r.addr2 || r['Apartment'] || r['Unit'] || '',
                             city: r.City || r.city || '',
                             state: r.State || r.state || '',
                             zip: r.Zip || r.ZIP || r.zip || r['Zip Code'] || ''
@@ -1197,11 +1207,13 @@ RECIPIENT INFO:
 - Gift: ${guest.gift || 'no physical gift, just their presence'}
 - Special moment: ${guest.memo || 'none mentioned'}
 - Relationship: ${guest.relationship || 'guest'}
-- Event: ${isRecipientEvent ? `${firstName}'s ${eventType} (use "YOUR ${eventType}")` : `Our ${eventType} (use "OUR ${eventType}")`}
+- Event: ${isRecipientEvent ? `${firstName}'s ${eventType} (use "your ${eventType}")` : `Our ${eventType} (use "our ${eventType}")`}
 - Tone: ${details.tone}
 - Sign from: ${details.names}
 
-⚠️ IMPORTANT: When referring to the gift, use EXACTLY the capitalization provided above. Do not auto-capitalize gift names unless they are proper nouns.
+⚠️ IMPORTANT:
+- When referring to the gift, use EXACTLY the capitalization provided above. Do not auto-capitalize gift names unless they are proper nouns.
+- When referring to the event, use lowercase "your" or "our" (not all caps), e.g., "your baby shower" not "YOUR Baby Shower".
 
 MANDATORY UNIQUENESS REQUIREMENTS:
 
@@ -1328,6 +1340,7 @@ Make it completely unique from previous notes with natural flow!`;
                             gift: g.gift,
                             content: content,
                             addr: g.addr,
+                            addr2: g.addr2 || '',
                             city: g.city,
                             state: g.state,
                             zip: g.zip
@@ -1500,13 +1513,21 @@ Make it completely unique from previous notes with natural flow!`;
                         pdf.text(note.guestName || '', x + 0.1, y + 0.3);
 
                         // Street address
+                        let currentY = y + 0.5;
                         if (note.addr) {
-                            pdf.text(note.addr, x + 0.1, y + 0.5);
+                            pdf.text(note.addr, x + 0.1, currentY);
+                            currentY += 0.2;
+                        }
+
+                        // Apartment/Unit
+                        if (note.addr2) {
+                            pdf.text(note.addr2, x + 0.1, currentY);
+                            currentY += 0.2;
                         }
 
                         // City, State, ZIP
                         if (note.city && note.state) {
-                            pdf.text(`${note.city}, ${note.state} ${note.zip || ''}`, x + 0.1, y + 0.7);
+                            pdf.text(`${note.city}, ${note.state} ${note.zip || ''}`, x + 0.1, currentY);
                         }
                     });
 
@@ -1555,12 +1576,20 @@ Make it completely unique from previous notes with natural flow!`;
                         pdf.text(nameForLabel, x + 0.1, y + 0.3);
 
                         // Street address
+                        let currentY = y + 0.5;
                         if (details.returnAddr) {
-                            pdf.text(details.returnAddr, x + 0.1, y + 0.5);
+                            pdf.text(details.returnAddr, x + 0.1, currentY);
+                            currentY += 0.2;
+                        }
+
+                        // Apartment/Unit
+                        if (details.returnAddr2) {
+                            pdf.text(details.returnAddr2, x + 0.1, currentY);
+                            currentY += 0.2;
                         }
 
                         // City, State, ZIP
-                        pdf.text(`${details.returnCity}, ${details.returnState} ${details.returnZip || ''}`, x + 0.1, y + 0.7);
+                        pdf.text(`${details.returnCity}, ${details.returnState} ${details.returnZip || ''}`, x + 0.1, currentY);
                     }
 
                     pdf.save('return-labels.pdf');
@@ -1876,7 +1905,7 @@ Make it completely unique from previous notes with natural flow!`;
 
                             <div className="form-section" style={{position: 'relative'}}>
                                 <label>Street Address</label>
-                                <input 
+                                <input
                                     value={details.returnAddr}
                                     onChange={(e) => handleAddressInput(e.target.value, 'returnAddr')}
                                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
@@ -1895,6 +1924,15 @@ Make it completely unique from previous notes with natural flow!`;
                                         ))}
                                     </div>
                                 )}
+                            </div>
+
+                            <div className="form-section">
+                                <label>Apartment, Suite, Unit (Optional)</label>
+                                <input
+                                    value={details.returnAddr2}
+                                    onChange={(e) => setDetails({...details, returnAddr2: e.target.value})}
+                                    placeholder="Apt 4B"
+                                />
                             </div>
 
                             <div className="form-grid">
@@ -2131,9 +2169,16 @@ Make it completely unique from previous notes with natural flow!`;
 
                                     <div className="form-section">
                                         <label>Mailing Address</label>
-                                        <input 
+                                        <input
                                             value={currentGuest.addr}
                                             onChange={(e) => setCurrentGuest({...currentGuest, addr: e.target.value})}
+                                            placeholder="123 Main Street"
+                                            style={{marginBottom: '0.75rem'}}
+                                        />
+                                        <input
+                                            value={currentGuest.addr2}
+                                            onChange={(e) => setCurrentGuest({...currentGuest, addr2: e.target.value})}
+                                            placeholder="Apartment, Suite, Unit (Optional)"
                                             style={{marginBottom: '0.75rem'}}
                                         />
                                         <div className="form-grid">
@@ -2448,17 +2493,17 @@ Make it completely unique from previous notes with natural flow!`;
                             </div>
                             <div className="download-card">
                                 <div className="download-icon">🏷️</div>
-                                <h4>Recipient Labels ({notes.length})</h4>
+                                <h4>Recipient Labels</h4>
                                 <button className="btn-primary" style={{width: '100%'}} onClick={generateRecipientLabelsPDF}>📥 Download</button>
                             </div>
                             <div className="download-card">
                                 <div className="download-icon">📮</div>
-                                <h4>Return Labels ({notes.length})</h4>
+                                <h4>Return Labels</h4>
                                 <button className="btn-primary" style={{width: '100%'}} onClick={generateReturnLabelsPDF}>📥 Download</button>
                             </div>
                             <div className="download-card">
                                 <div className="download-icon">💫</div>
-                                <h4>Seals ({notes.length})</h4>
+                                <h4>Seals</h4>
                                 <button className="btn-primary" style={{width: '100%'}} onClick={generateSealsPDF}>📥 Download</button>
                             </div>
                         </div>
@@ -2472,8 +2517,8 @@ Make it completely unique from previous notes with natural flow!`;
                                     <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                                         <span style={{fontSize: '1.25rem'}}>💌</span>
                                         <div>
-                                            <strong style={{color: '#2D5853'}}>Card Stock</strong>
-                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— for the cards</span>
+                                            <strong style={{color: '#2D5853'}}>Card Stock (8.5" x 5.5")</strong>
+                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— folds to 5.5" x 4.25" cards</span>
                                         </div>
                                     </div>
                                     <a
@@ -2574,25 +2619,20 @@ Make it completely unique from previous notes with natural flow!`;
                             </div>
                         </div>
 
-                        <div className="print-shops">
-                            <h4>🖨️ Nearby Print Shops</h4>
-                            {nearbyShops.length > 0 ? (
-                                <div className="shops-grid">
-                                    {nearbyShops.map((shop, i) => (
-                                        <div key={i} className="shop-item">
-                                            <strong>{shop.name}</strong>
-                                            <div className="shop-distance">📍 {shop.distance} away</div>
-                                            <p>{shop.address}</p>
-                                            <p>{shop.phone}</p>
-                                            <a href={shop.url} target="_blank" rel="noopener noreferrer">Get Directions →</a>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p style={{textAlign: 'center', color: '#666'}}>
-                                    Finding nearest print shops based on your address...
-                                </p>
-                            )}
+                        <div className="card" style={{marginTop: '2rem', textAlign: 'center'}}>
+                            <h4 style={{color: '#2D5853', marginBottom: '1rem'}}>🖨️ Find Nearby Print Shops</h4>
+                            <p style={{color: '#666', marginBottom: '1rem', fontSize: '0.9rem'}}>
+                                Search for print shops near your location
+                            </p>
+                            <a
+                                href={`https://www.google.com/maps/search/print+shop+near+${encodeURIComponent(details.returnCity + ', ' + details.returnState)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-secondary"
+                                style={{display: 'inline-block', textDecoration: 'none'}}
+                            >
+                                Search on Google Maps →
+                            </a>
                         </div>
 
                         <div style={{textAlign: 'center', marginTop: '2rem'}}>
