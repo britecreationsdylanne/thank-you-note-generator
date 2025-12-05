@@ -1308,9 +1308,12 @@ RECIPIENT INFO:
 - Tone: ${details.tone}
 - Sign from: ${details.names}
 
-⚠️ IMPORTANT:
-- When referring to the gift, use EXACTLY the capitalization provided above. Do not auto-capitalize gift names unless they are proper nouns.
-- When referring to the event, use lowercase "your" or "our" (not all caps), e.g., "your baby shower" not "YOUR Baby Shower".
+⚠️ CRITICAL - READ CAREFULLY:
+- GIFT CAPITALIZATION: The gift name is "${guest.gift || 'no physical gift, just their presence'}". You MUST use this EXACT capitalization in your message. If it's lowercase (like "picture frame"), keep it lowercase. Do NOT write "Picture Frame" or "Picture frame". Only capitalize if it's a proper noun (like "Nintendo" or "Dyson"). Examples:
+  * If gift is "picture frame" → write "the picture frame" (NOT "the Picture Frame")
+  * If gift is "kitchen towels" → write "the kitchen towels" (NOT "the Kitchen Towels")
+  * If gift is "Instant Pot" → write "the Instant Pot" (this is a brand name, keep capitals)
+- EVENT: Use lowercase "your" or "our" (not "YOUR" or "OUR"), e.g., "your baby shower" not "YOUR Baby Shower".
 
 MANDATORY UNIQUENESS REQUIREMENTS:
 
@@ -1964,6 +1967,18 @@ Make it completely unique from previous notes with natural flow!`;
 
                         <div className="card">
                             <div className="form-section">
+                                <label>Name(s) for Return Labels</label>
+                                <input
+                                    value={details.fullName}
+                                    onChange={(e) => setDetails({...details, fullName: e.target.value})}
+                                    placeholder="Sarah & Mike Johnson"
+                                />
+                                <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
+                                    Your full name(s) for the return address labels 🏷️
+                                </p>
+                            </div>
+
+                            <div className="form-section">
                                 <label>Card Signature</label>
                                 <input
                                     value={details.names}
@@ -1985,18 +2000,6 @@ Make it completely unique from previous notes with natural flow!`;
                                 />
                                 <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
                                     These will appear on your decorative envelope seals 💫
-                                </p>
-                            </div>
-
-                            <div className="form-section">
-                                <label>Full Name for Return Labels (Optional)</label>
-                                <input
-                                    value={details.fullName}
-                                    onChange={(e) => setDetails({...details, fullName: e.target.value})}
-                                    placeholder={details.names || "Sarah & Mike Johnson"}
-                                />
-                                <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
-                                    Leave blank to use Card Signature. Add last name if needed. 🏷️
                                 </p>
                             </div>
 
@@ -2232,10 +2235,15 @@ Make it completely unique from previous notes with natural flow!`;
                                         </div>
                                         <div>
                                             <label>Gift</label>
-                                            <input 
+                                            <input
                                                 value={currentGuest.gift}
                                                 onChange={(e) => setCurrentGuest({...currentGuest, gift: e.target.value})}
+                                                placeholder="picture frame"
+                                                spellCheck="true"
                                             />
+                                            <p style={{fontSize: '0.75rem', color: '#999', marginTop: '0.25rem'}}>
+                                                Check spelling - AI will use exactly what you type
+                                            </p>
                                         </div>
                                     </div>
                                     
@@ -2736,11 +2744,12 @@ Make it completely unique from previous notes with natural flow!`;
                                 Search for print shops near your location
                             </p>
                             <a
-                                href={`https://www.google.com/maps/search/print+shop+near+${encodeURIComponent(
-                                    [details.returnAddr, details.returnAddr2, details.returnCity, details.returnState, details.returnZip]
+                                href={(() => {
+                                    const address = [details.returnAddr, details.returnAddr2, details.returnCity, details.returnState, details.returnZip]
                                         .filter(Boolean)
-                                        .join(', ')
-                                )}`}
+                                        .join(', ');
+                                    return `https://www.google.com/maps/search/print+shop/@?api=1&query=print+shop+near+${encodeURIComponent(address)}`;
+                                })()}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn-secondary"
