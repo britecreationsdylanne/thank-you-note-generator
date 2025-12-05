@@ -628,6 +628,7 @@
                 name: '', gift: '', memo: '', relationship: '', addr: '', city: '', state: '', zip: ''
             });
             const [notes, setNotes] = useState([]);
+            const [editingNoteIndex, setEditingNoteIndex] = useState(null);
             const [dragOver, setDragOver] = useState(false);
             const [nearbyShops, setNearbyShops] = useState([]);
             const [addressSuggestions, setAddressSuggestions] = useState([]);
@@ -733,16 +734,110 @@
             // Address autocomplete simulation (in production, use Google Places API)
             const handleAddressInput = async (value, field) => {
                 setDetails({...details, [field]: value});
-                
+
                 if (field === 'returnAddr' && value.length > 3) {
-                    // Simulate address suggestions (in production, call actual API)
-                    setAddressSuggestions([
-                        value + ', City, ST',
-                        value + ' Street, City, ST',
-                        value + ' Avenue, City, ST'
-                    ]);
-                    setShowSuggestions(true);
+                    try {
+                        // Call Google Places Autocomplete via Netlify function
+                        const response = await fetch('/.netlify/functions/autocomplete-address', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                input: value
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to get address suggestions');
+                        }
+
+                        const data = await response.json();
+
+                        if (data.predictions && data.predictions.length > 0) {
+                            setAddressSuggestions(data.predictions.map(p => ({
+                                description: p.description,
+                                placeId: p.place_id
+                            })));
+                            setShowSuggestions(true);
+                        } else {
+                            setShowSuggestions(false);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching address suggestions:', error);
+                        // Fallback to no suggestions on error
+                        setShowSuggestions(false);
+                    }
                 } else {
+                    setShowSuggestions(false);
+                }
+            };
+
+            const handleAddressSelect = async (suggestion) => {
+                try {
+                    // Call Google Places Details API to get address components
+                    const response = await fetch('/.netlify/functions/place-details', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            placeId: suggestion.placeId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to get place details');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.result && data.result.address_components) {
+                        const components = data.result.address_components;
+
+                        // Parse address components
+                        let streetNumber = '';
+                        let route = '';
+                        let city = '';
+                        let state = '';
+                        let zip = '';
+
+                        components.forEach(component => {
+                            if (component.types.includes('street_number')) {
+                                streetNumber = component.long_name;
+                            }
+                            if (component.types.includes('route')) {
+                                route = component.long_name;
+                            }
+                            if (component.types.includes('locality')) {
+                                city = component.long_name;
+                            }
+                            if (component.types.includes('administrative_area_level_1')) {
+                                state = component.short_name;
+                            }
+                            if (component.types.includes('postal_code')) {
+                                zip = component.long_name;
+                            }
+                        });
+
+                        // Update details with parsed address
+                        setDetails({
+                            ...details,
+                            returnAddr: `${streetNumber} ${route}`.trim(),
+                            returnCity: city,
+                            returnState: state,
+                            returnZip: zip
+                        });
+                    } else {
+                        // Fallback: just use the description
+                        setDetails({...details, returnAddr: suggestion.description});
+                    }
+
+                    setShowSuggestions(false);
+                } catch (error) {
+                    console.error('Error getting place details:', error);
+                    // Fallback: just use the description
+                    setDetails({...details, returnAddr: suggestion.description});
                     setShowSuggestions(false);
                 }
             };
@@ -1106,6 +1201,8 @@ RECIPIENT INFO:
 - Tone: ${details.tone}
 - Sign from: ${details.names}
 
+⚠️ IMPORTANT: When referring to the gift, use EXACTLY the capitalization provided above. Do not auto-capitalize gift names unless they are proper nouns.
+
 MANDATORY UNIQUENESS REQUIREMENTS:
 
 1. GREETING FORMAT - CRITICAL:
@@ -1238,7 +1335,7 @@ Make it completely unique from previous notes with natural flow!`;
                     }
 
                     setNotes(generated);
-                    setStep(5); // Go directly to download
+                    setStep(5); // Go to review/edit messages
                 } catch (error) {
                     alert('Error generating notes. Please try again.');
                     console.error(error);
@@ -1740,29 +1837,28 @@ Make it completely unique from previous notes with natural flow!`;
                         <p className="page-subtitle">For return labels and finding nearby print shops</p>
 
                         <div className="card">
-                            <div className="form-grid">
-                                <div className="form-section">
-                                    <label>Full Name for Return Labels</label>
-                                    <input
-                                        value={details.fullName}
-                                        onChange={(e) => setDetails({...details, fullName: e.target.value})}
-                                        placeholder="Sarah & Mike Johnson"
-                                    />
-                                    <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
-                                        Your full name(s) for the return address labels 🏷️
-                                    </p>
-                                </div>
-                                <div className="form-section">
-                                    <label>Card Signature</label>
-                                    <input
-                                        value={details.names}
-                                        onChange={(e) => setDetails({...details, names: e.target.value})}
-                                        placeholder="Sarah & Mike"
-                                    />
-                                    <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
-                                        How you'd like to sign your cards ✍️
-                                    </p>
-                                </div>
+                            <div className="form-section">
+                                <label>Full Name for Return Labels</label>
+                                <input
+                                    value={details.fullName}
+                                    onChange={(e) => setDetails({...details, fullName: e.target.value})}
+                                    placeholder="Sarah & Mike Johnson"
+                                />
+                                <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
+                                    Your full name(s) for the return address labels 🏷️
+                                </p>
+                            </div>
+
+                            <div className="form-section">
+                                <label>Card Signature</label>
+                                <input
+                                    value={details.names}
+                                    onChange={(e) => setDetails({...details, names: e.target.value})}
+                                    placeholder="Sarah & Mike"
+                                />
+                                <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
+                                    How you'd like to sign your cards ✍️
+                                </p>
                             </div>
 
                             <div className="form-section">
@@ -1789,15 +1885,12 @@ Make it completely unique from previous notes with natural flow!`;
                                 {showSuggestions && addressSuggestions.length > 0 && (
                                     <div className="address-suggestions">
                                         {addressSuggestions.map((addr, i) => (
-                                            <div 
+                                            <div
                                                 key={i}
                                                 className="address-suggestion"
-                                                onClick={() => {
-                                                    setDetails({...details, returnAddr: addr});
-                                                    setShowSuggestions(false);
-                                                }}
+                                                onClick={() => handleAddressSelect(addr)}
                                             >
-                                                {addr}
+                                                {addr.description}
                                             </div>
                                         ))}
                                     </div>
@@ -1846,6 +1939,26 @@ Make it completely unique from previous notes with natural flow!`;
                             ← Back
                         </div>
                         <h2 className="page-title">Add Your Guests</h2>
+
+                        {inputMethod && (
+                            <div style={{textAlign: 'center', marginBottom: '1rem'}}>
+                                <button
+                                    onClick={() => setInputMethod(null)}
+                                    style={{
+                                        background: 'transparent',
+                                        border: '1px solid #C8956B',
+                                        color: '#C8956B',
+                                        padding: '0.5rem 1rem',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontSize: '0.875rem',
+                                        fontWeight: '500'
+                                    }}
+                                >
+                                    🔄 Switch Input Method
+                                </button>
+                            </div>
+                        )}
 
                         {!inputMethod && (
                             <div className="card">
@@ -2206,8 +2319,122 @@ Make it completely unique from previous notes with natural flow!`;
                 );
             }
 
-            // STEP 5: Download
+            // STEP 5: Review and Edit Messages
             if (step === 5) {
+                const handleEditMessage = (index) => {
+                    setEditingNoteIndex(index);
+                };
+
+                const handleSaveMessage = (index, newContent) => {
+                    const updatedNotes = [...notes];
+                    updatedNotes[index].content = newContent;
+                    setNotes(updatedNotes);
+                    setEditingNoteIndex(null);
+                };
+
+                return (
+                    <div className="container">
+                        <h2 className="page-title">Review Your Messages ✏️</h2>
+                        <p className="page-subtitle">Review and edit your {notes.length} personalized cards</p>
+
+                        <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                            {notes.map((note, index) => (
+                                <div key={index} className="card">
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem'}}>
+                                        <div>
+                                            <h4 style={{color: '#2D5853', marginBottom: '0.25rem'}}>{note.guestName}</h4>
+                                            <p style={{color: '#999', fontSize: '0.875rem', margin: 0}}>Gift: {note.gift}</p>
+                                        </div>
+                                        {editingNoteIndex !== index && (
+                                            <button
+                                                onClick={() => handleEditMessage(index)}
+                                                style={{
+                                                    background: 'transparent',
+                                                    border: '1px solid #C8956B',
+                                                    color: '#C8956B',
+                                                    padding: '0.4rem 0.9rem',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: '500'
+                                                }}
+                                            >
+                                                ✏️ Edit
+                                            </button>
+                                        )}
+                                    </div>
+                                    {editingNoteIndex === index ? (
+                                        <div>
+                                            <textarea
+                                                value={note.content}
+                                                onChange={(e) => {
+                                                    const updatedNotes = [...notes];
+                                                    updatedNotes[index].content = e.target.value;
+                                                    setNotes(updatedNotes);
+                                                }}
+                                                style={{
+                                                    width: '100%',
+                                                    minHeight: '120px',
+                                                    padding: '0.75rem',
+                                                    border: '2px solid #C8956B',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.95rem',
+                                                    fontFamily: 'inherit',
+                                                    resize: 'vertical'
+                                                }}
+                                            />
+                                            <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
+                                                <button
+                                                    onClick={() => handleSaveMessage(index, note.content)}
+                                                    style={{
+                                                        background: '#2D5853',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        padding: '0.5rem 1rem',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: '500'
+                                                    }}
+                                                >
+                                                    ✓ Save
+                                                </button>
+                                                <button
+                                                    onClick={() => setEditingNoteIndex(null)}
+                                                    style={{
+                                                        background: 'transparent',
+                                                        border: '1px solid #999',
+                                                        color: '#666',
+                                                        padding: '0.5rem 1rem',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.875rem'
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <p style={{color: '#666', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-wrap'}}>{note.content}</p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            className="btn-primary"
+                            style={{width: '100%', marginTop: '1.5rem'}}
+                            onClick={() => setStep(6)}
+                        >
+                            Continue to Download →
+                        </button>
+                    </div>
+                );
+            }
+
+            // STEP 6: Download
+            if (step === 6) {
                 return (
                     <div className="container">
                         <h2 className="page-title">Ready! 🎉</h2>
@@ -2217,25 +2444,21 @@ Make it completely unique from previous notes with natural flow!`;
                             <div className="download-card">
                                 <div className="download-icon">💌</div>
                                 <h4>Cards</h4>
-                                <p>5.5" x 4.25"</p>
                                 <button className="btn-primary" style={{width: '100%'}} onClick={generateCardsPDF}>📥 Download</button>
                             </div>
                             <div className="download-card">
                                 <div className="download-icon">🏷️</div>
-                                <h4>Recipient Labels</h4>
-                                <p>Avery 5160</p>
+                                <h4>Recipient Labels ({notes.length})</h4>
                                 <button className="btn-primary" style={{width: '100%'}} onClick={generateRecipientLabelsPDF}>📥 Download</button>
                             </div>
                             <div className="download-card">
                                 <div className="download-icon">📮</div>
-                                <h4>Return Labels</h4>
-                                <p>Your address</p>
+                                <h4>Return Labels ({notes.length})</h4>
                                 <button className="btn-primary" style={{width: '100%'}} onClick={generateReturnLabelsPDF}>📥 Download</button>
                             </div>
                             <div className="download-card">
                                 <div className="download-icon">💫</div>
-                                <h4>Seals</h4>
-                                <p>1.5" round (5 per guest)</p>
+                                <h4>Seals ({notes.length})</h4>
                                 <button className="btn-primary" style={{width: '100%'}} onClick={generateSealsPDF}>📥 Download</button>
                             </div>
                         </div>
@@ -2254,7 +2477,7 @@ Make it completely unique from previous notes with natural flow!`;
                                         </div>
                                     </div>
                                     <a
-                                        href="https://www.amazon.com/s?k=110lb+cardstock+8.5x11"
+                                        href="https://www.amazon.com/s?k=110lb+cardstock+8.5x5.5"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{
