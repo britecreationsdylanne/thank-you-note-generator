@@ -756,6 +756,8 @@
             });
             const [notes, setNotes] = useState([]);
             const [editingNoteIndex, setEditingNoteIndex] = useState(null);
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [generationProgress, setGenerationProgress] = useState({ current: 0, total: 0 });
             const [dragOver, setDragOver] = useState(false);
             const [nearbyShops, setNearbyShops] = useState([]);
             const [addressSuggestions, setAddressSuggestions] = useState([]);
@@ -1550,16 +1552,14 @@ Make it completely unique from previous notes with natural flow!`;
                     return;
                 }
 
-                // Show loading state
-                const generateButton = document.querySelector('.btn-primary');
-                if (generateButton) {
-                    generateButton.textContent = 'Generating personalized notes...';
-                    generateButton.disabled = true;
-                }
+                setIsGenerating(true);
+                setGenerationProgress({ current: 0, total: guests.length });
 
                 try {
                     const generated = [];
-                    for (const g of guests) {
+                    for (let i = 0; i < guests.length; i++) {
+                        const g = guests[i];
+                        setGenerationProgress({ current: i + 1, total: guests.length });
                         const content = await generateNoteWithAI(g);
                         generated.push({
                             guestName: g.name,
@@ -1574,15 +1574,12 @@ Make it completely unique from previous notes with natural flow!`;
                     }
 
                     setNotes(generated);
+                    setIsGenerating(false);
                     setStep(5); // Go to review/edit messages
                 } catch (error) {
                     alert('Error generating notes. Please try again.');
                     console.error(error);
-                } finally {
-                    if (generateButton) {
-                        generateButton.textContent = 'Generate Cards →';
-                        generateButton.disabled = false;
-                    }
+                    setIsGenerating(false);
                 }
             };
 
@@ -2204,6 +2201,20 @@ Make it completely unique from previous notes with natural flow!`;
                         </div>
                         <h2 className="page-title">Add Your Guests</h2>
 
+                        {guests.length > 0 && (
+                            <div style={{
+                                background: '#F0F7F6',
+                                padding: '0.75rem 1rem',
+                                borderRadius: '8px',
+                                marginBottom: '1rem',
+                                textAlign: 'center',
+                                fontSize: '0.9rem',
+                                color: '#2D5853'
+                            }}>
+                                💾 Your guest list is automatically saved as you add guests ({guests.length} added)
+                            </div>
+                        )}
+
                         {inputMethod && (
                             <div style={{textAlign: 'center', marginBottom: '1rem'}}>
                                 <button
@@ -2261,8 +2272,8 @@ Make it completely unique from previous notes with natural flow!`;
                                             <div className="upload-hint">or drag and drop</div>
                                         </div>
                                         <div style={{marginTop: '1rem', padding: '1rem', background: '#FFF9F5', borderRadius: '8px', fontSize: '0.875rem', color: '#666', textAlign: 'left'}}>
-                                            <strong style={{color: '#2D5853'}}>CSV Format:</strong><br/>
-                                            Name, Gift, Special Moment, Relationship, Address, City, State, Zip<br/>
+                                            <strong style={{color: '#2D5853'}}>Required CSV Columns:</strong> Name, Address, City, State, Zip<br/>
+                                            <strong style={{color: '#2D5853', marginTop: '0.5rem', display: 'block'}}>Optional Columns:</strong> Gift, Special Moment, Relationship<br/>
                                             <em style={{fontSize: '0.8rem', color: '#999'}}>Headers can also be: "Guest Name", "Gift Description", "Special Memory", "Relation", etc.</em>
                                             <br/><br/>
                                             <button
@@ -2598,13 +2609,49 @@ Make it completely unique from previous notes with natural flow!`;
                             </div>
                         </div>
 
-                        <button
-                            className="btn-primary"
-                            style={{width: '100%'}}
-                            onClick={handleGenerate}
-                        >
-                            Generate Cards →
-                        </button>
+                        {isGenerating ? (
+                            <div style={{marginTop: '1.5rem', textAlign: 'center'}}>
+                                <div style={{
+                                    background: '#F0F7F6',
+                                    padding: '1.5rem',
+                                    borderRadius: '12px',
+                                    marginBottom: '1rem'
+                                }}>
+                                    <div style={{fontSize: '1.5rem', marginBottom: '0.5rem'}}>✨</div>
+                                    <div style={{fontSize: '1.1rem', fontWeight: '600', color: '#2D5853', marginBottom: '0.5rem'}}>
+                                        Generating Personalized Messages...
+                                    </div>
+                                    <div style={{fontSize: '0.9rem', color: '#666', marginBottom: '1rem'}}>
+                                        {generationProgress.current} of {generationProgress.total} cards
+                                    </div>
+                                    <div style={{
+                                        width: '100%',
+                                        height: '8px',
+                                        background: '#E0E0E0',
+                                        borderRadius: '4px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <div style={{
+                                            width: `${(generationProgress.current / generationProgress.total) * 100}%`,
+                                            height: '100%',
+                                            background: 'linear-gradient(90deg, #2D5853, #C8956B)',
+                                            transition: 'width 0.3s ease'
+                                        }}></div>
+                                    </div>
+                                    <div style={{fontSize: '0.85rem', color: '#999', marginTop: '1rem'}}>
+                                        This will take about {Math.ceil(generationProgress.total * 3 / 60)} minute{Math.ceil(generationProgress.total * 3 / 60) !== 1 ? 's' : ''}. Please be patient!
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                className="btn-primary"
+                                style={{width: '100%'}}
+                                onClick={handleGenerate}
+                            >
+                                Generate Cards →
+                            </button>
+                        )}
                     </div>
                 );
             }
