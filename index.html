@@ -1588,11 +1588,12 @@ Make it completely unique from previous notes with natural flow!`;
                 const pdf = new jsPDF({ orientation: 'landscape', unit: 'in', format: [4.25, 5.5] });
 
                 // Show loading message
-                const generateButton = document.querySelector('.btn-primary');
+                const generateButton = event.target;
                 const originalText = generateButton ? generateButton.textContent : '';
                 if (generateButton) {
-                    generateButton.textContent = 'Generating PDF with fonts...';
+                    generateButton.innerHTML = '⏳ Generating PDF...';
                     generateButton.disabled = true;
+                    generateButton.style.opacity = '0.7';
                 }
                 
                 try {
@@ -1687,15 +1688,17 @@ Make it completely unique from previous notes with natural flow!`;
                     pdf.save('thank-you-cards.pdf');
 
                     if (generateButton) {
-                        generateButton.textContent = originalText;
+                        generateButton.innerHTML = originalText;
                         generateButton.disabled = false;
+                        generateButton.style.opacity = '1';
                     }
                 } catch (error) {
                     console.error('Error generating PDF:', error);
                     alert('Error generating PDF. Please try again.');
                     if (generateButton) {
-                        generateButton.textContent = originalText;
+                        generateButton.innerHTML = originalText;
                         generateButton.disabled = false;
+                        generateButton.style.opacity = '1';
                     }
                 }
             };
@@ -2066,6 +2069,17 @@ Make it completely unique from previous notes with natural flow!`;
                             </div>
                             <div className="tip">
                                 💡 Use whatever parts you need - cards only, labels only, or the full package!
+                            </div>
+                        </div>
+
+                        <div className="card" style={{maxWidth: '800px', margin: '0 auto 2rem', background: 'linear-gradient(135deg, #F0F7F6 0%, #FFF9F5 100%)'}}>
+                            <h3 style={{textAlign: 'center', marginBottom: '1rem', color: '#2D5853'}}>Perfect For Any Occasion</h3>
+                            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', textAlign: 'center'}}>
+                                <div><span style={{fontSize: '1.5rem'}}>💍</span><br/><strong>Weddings</strong></div>
+                                <div><span style={{fontSize: '1.5rem'}}>👶</span><br/><strong>Baby Showers</strong></div>
+                                <div><span style={{fontSize: '1.5rem'}}>🎂</span><br/><strong>Birthdays</strong></div>
+                                <div><span style={{fontSize: '1.5rem'}}>🎓</span><br/><strong>Graduations</strong></div>
+                                <div><span style={{fontSize: '1.5rem'}}>🎉</span><br/><strong>Any Event!</strong></div>
                             </div>
                         </div>
 
@@ -2753,7 +2767,7 @@ Make it completely unique from previous notes with natural flow!`;
                                             </div>
                                         </div>
                                     ) : (
-                                        <p style={{color: '#666', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-wrap'}}>{note.content}</p>
+                                        <p style={{color: '#666', lineHeight: '1.6', margin: 0}}>{note.content}</p>
                                     )}
                                 </div>
                             ))}
