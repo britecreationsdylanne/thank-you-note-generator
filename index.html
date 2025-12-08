@@ -1618,11 +1618,12 @@ Make it completely unique from previous notes with natural flow!`;
                     tempContainer.style.top = '0';
                     document.body.appendChild(tempContainer);
 
-                    // Avery 5389 layout: 2 columns x 2 rows, each card is 5.5" x 4.25"
-                    const cardWidth = 5.5;
-                    const cardHeight = 4.25;
-                    const marginX = (8.5 - (cardWidth * 2)) / 2; // Center horizontally
-                    const marginY = (11 - (cardHeight * 2)) / 2; // Center vertically
+                    // Avery 5389 layout: 2 columns x 2 rows
+                    // Each card is 5.5" x 4.25" but we need to fit 2 across (8.5" page)
+                    const cardWidth = 4.25;  // Portrait orientation
+                    const cardHeight = 5.5;  // Portrait orientation
+                    const marginX = 0;       // No horizontal margin for Avery 5389
+                    const marginY = 0;       // No vertical margin for Avery 5389
 
                     for (let i = 0; i < notes.length; i++) {
                         const note = notes[i];
@@ -1635,8 +1636,8 @@ Make it completely unique from previous notes with natural flow!`;
 
                         // Create a card element with actual HTML/CSS
                         const cardElement = document.createElement('div');
-                        cardElement.style.width = '825px'; // 5.5 inches * 150 DPI
-                        cardElement.style.height = '637px'; // 4.25 inches * 150 DPI
+                        cardElement.style.width = '637px'; // 4.25 inches * 150 DPI
+                        cardElement.style.height = '825px'; // 5.5 inches * 150 DPI
                         cardElement.style.backgroundColor = details.color;
                         cardElement.style.padding = '75px';
                         cardElement.style.boxSizing = 'border-box';
@@ -2983,7 +2984,7 @@ Make it completely unique from previous notes with natural flow!`;
                             </div>
                         </div>
 
-                        <div className="card" style={{marginTop: '2rem'}}>
+                        <div className="card" style={{marginTop: '2rem', background: 'linear-gradient(135deg, #E1E7EF 0%, #F4F7FC 100%)', border: '1px solid rgba(0, 129, 130, 0.1)'}}>
                             <h3 style={{color: '#008182', marginBottom: '1rem'}}>📦 Required Supplies</h3>
                             <p style={{color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem'}}>Shop on Amazon:</p>
 
@@ -3125,8 +3126,19 @@ Make it completely unique from previous notes with natural flow!`;
                                         setInputMethod(null);
                                     }
                                 }}
-                                className="btn-secondary"
-                                style={{padding: '0.75rem 1.5rem', fontSize: '1rem'}}
+                                style={{
+                                    background: '#FF6B35',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '0.75rem 1.5rem',
+                                    fontSize: '1rem',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontWeight: '600',
+                                    transition: 'all 0.3s'
+                                }}
+                                onMouseOver={(e) => e.target.style.background = '#E85A2A'}
+                                onMouseOut={(e) => e.target.style.background = '#FF6B35'}
                             >
                                 🔄 Start Over with New Event
                             </button>
