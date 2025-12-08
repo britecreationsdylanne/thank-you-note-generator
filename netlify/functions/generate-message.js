@@ -20,6 +20,19 @@ exports.handler = async (event) => {
       };
     }
 
+    // Check if API key exists
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error('❌ ANTHROPIC_API_KEY environment variable is not set!');
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured in Netlify environment' })
+      };
+    }
+
+    console.log('✅ API key found, calling Claude API...');
+    console.log('Prompt length:', prompt.length, 'characters');
+
     const postData = JSON.stringify({
       model: 'claude-3-5-haiku-20241022',
       max_tokens: 500,
@@ -50,12 +63,16 @@ exports.handler = async (event) => {
         res.on('end', () => {
           try {
             if (res.statusCode !== 200) {
-              console.error('Claude API error:', body);
+              console.error('❌ Claude API HTTP error:', res.statusCode);
+              console.error('Response body:', body);
               reject(new Error(`HTTP ${res.statusCode}: ${body}`));
             } else {
-              resolve(JSON.parse(body));
+              const parsed = JSON.parse(body);
+              console.log('✅ Claude API success! Generated', parsed.content[0].text.length, 'characters');
+              resolve(parsed);
             }
           } catch (e) {
+            console.error('❌ Error parsing response:', e);
             reject(e);
           }
         });
