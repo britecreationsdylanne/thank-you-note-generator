@@ -1828,6 +1828,24 @@ Make it completely unique from previous notes with natural flow!`;
                         // Wait for fonts to load before rendering
                         await document.fonts.ready;
 
+                        // Dynamic font sizing based on content length
+                        const contentLength = cleanedContent.length;
+                        let fontSize = 18; // Default
+
+                        if (contentLength < 150) {
+                            fontSize = 22; // Short messages get larger text
+                        } else if (contentLength < 250) {
+                            fontSize = 20; // Medium messages
+                        } else if (contentLength < 350) {
+                            fontSize = 18; // Normal messages
+                        } else if (contentLength < 450) {
+                            fontSize = 16; // Longer messages
+                        } else {
+                            fontSize = 14; // Very long messages
+                        }
+
+                        cardElement.style.fontSize = `${fontSize}px`;
+
                         // Convert to canvas then to image
                         const canvas = await html2canvas(cardElement, {
                             scale: 2,
