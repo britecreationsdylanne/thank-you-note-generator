@@ -181,7 +181,6 @@
             background: #E85A2A;
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
-            box-shadow: 0 4px 12px rgba(0,129,130,0.3);
         }
         
         .btn-primary:disabled {
@@ -1764,7 +1763,7 @@ Make it completely unique from previous notes with natural flow!`;
                         // Convert to canvas then to image
                         const canvas = await html2canvas(cardElement, {
                             scale: 2,
-                            backgroundColor: details.color,
+                            backgroundColor: null,
                             logging: false
                         });
 
@@ -1951,30 +1950,33 @@ Make it completely unique from previous notes with natural flow!`;
                 };
                 const color = hexToRgb(details.color);
                 
-                // Layout for standard 1.5" round sticker sheets (Avery 22807 compatible)
-                // 3 columns x 8 rows = 24 seals per page
+                // Layout for standard 1.5" round sticker sheets (Avery 8293 compatible)
+                // 4 columns x 5 rows = 20 seals per page
                 const sealDiameter = 1.5;
-                const cols = 3;
-                const rows = 8;
+                const cols = 4;
+                const rows = 5;
                 const pageWidth = 8.5;
                 const pageHeight = 11;
 
-                // Avery 22807 actual specifications from template
-                // Page: 8.5" x 11", Labels: 1.5" circles, Layout: 3x8
-                // Left edge to first label center: 1.25"
-                // Top edge to first label center: 0.6875"
-                // Horizontal spacing between centers: 2.625"
-                // Vertical spacing between centers: 1.375"
-                const horizontalSpacing = 2.625;   // Distance between circle centers
-                const verticalSpacing = 1.375;     // Distance between circle centers
-                const marginX = 1.25;              // Left margin to first seal center
-                const marginY = 0.6875;            // Top margin to first seal center
+                // Avery 8293 specifications (1.5" round labels, 20 per sheet)
+                // Page: 8.5" x 11", Labels: 1.5" circles, Layout: 4x5
+                // Calculated spacing for optimal layout:
+                // Horizontal: 8.5" total, 4 labels × 1.5" = 6.0", remaining 2.5" for 5 gaps = 0.5" each
+                // Left edge to first label center: 1.25" (0.5" margin + 0.75" radius)
+                // Horizontal spacing between centers: 2.0" (1.5" diameter + 0.5" gap)
+                // Vertical: 11" total, 5 labels × 1.5" = 7.5", remaining 3.5" for 6 gaps = 0.583" each
+                // Top edge to first label center: 1.333" (0.583" margin + 0.75" radius)
+                // Vertical spacing between centers: 2.083" (1.5" diameter + 0.583" gap)
+                const horizontalSpacing = 2.0;        // Distance between circle centers
+                const verticalSpacing = 2.083;        // Distance between circle centers
+                const marginX = 1.25;                 // Left margin to first seal center
+                const marginY = 1.333;                // Top margin to first seal center
                 
                 const count = notes.length * 5; // 5 seals per guest
-                const sealsPerPage = cols * rows; // 24 seals per page
+                const sealsPerPage = cols * rows; // 20 seals per page
 
                 for (let i = 0; i < count; i++) {
-                    // Add new page every 24 seals
+                    // Add new page every 20 seals
                     if (i > 0 && i % sealsPerPage === 0) {
                         pdf.addPage();
                     }
@@ -2415,17 +2417,19 @@ Make it completely unique from previous notes with natural flow!`;
                                 <button
                                     onClick={() => setInputMethod(null)}
                                     style={{
-                                        background: 'transparent',
-                                        border: '1px solid #31D7CA',
-                                        color: '#31D7CA',
-                                        padding: '0.5rem 1rem',
-                                        borderRadius: '6px',
+                                        background: 'white',
+                                        border: '2px solid #008182',
+                                        color: '#008182',
+                                        padding: '0.75rem 1.5rem',
+                                        borderRadius: '8px',
                                         cursor: 'pointer',
-                                        fontSize: '0.875rem',
-                                        fontWeight: '500'
+                                        fontSize: '1rem',
+                                        fontWeight: '600',
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                        transition: 'all 0.3s'
                                     }}
                                 >
-                                    🔄 Switch Input Method
+                                    Switch Input Method
                                 </button>
                             </div>
                         )}
