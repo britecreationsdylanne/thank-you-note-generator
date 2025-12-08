@@ -1628,21 +1628,35 @@ Make it completely unique from previous notes with natural flow!`;
 
                     if (!response.ok) {
                         const errorText = await response.text();
-                        console.error('Claude API error:', errorText);
-                        console.error('Full error response:', errorText);
-                        // Don't show alert for every guest, just log it
-                        return generateNote(guest); // Fallback to template
+                        console.error('❌ Claude API HTTP ERROR:');
+                        console.error('Status:', response.status, response.statusText);
+                        console.error('Response:', errorText);
+                        // Show alert for first guest only
+                        if (guests.indexOf(guest) === 0) {
+                            alert(`⚠️ AI generation failed! Using template messages instead.\n\nError: ${response.status} ${response.statusText}\n\nThis likely means the Anthropic API key is not configured in Netlify.`);
+                        }
+                        throw new Error(`API returned ${response.status}: ${errorText}`);
                     }
 
                     const data = await response.json();
+
+                    if (!data.content || !data.content[0] || !data.content[0].text) {
+                        console.error('❌ Invalid API response structure:', data);
+                        throw new Error('Invalid API response format');
+                    }
+
                     const generatedNote = data.content[0].text.trim();
-                    console.log('Generated unique note for', firstName, ':', generatedNote.substring(0, 100));
+                    console.log('✅ Generated unique note for', guestName, '- length:', generatedNote.length);
                     return generatedNote;
                 } catch (error) {
-                    console.error('Error generating note with AI:', error);
+                    console.error('❌ Error generating AI note for', guestName, ':', error);
                     console.error('Error details:', error.message);
-                    // Don't show alert, just use fallback
-                    return generateNote(guest); // Fallback to template
+                    // Show warning for first guest only
+                    if (guests.indexOf(guest) === 0) {
+                        alert(`⚠️ Cannot generate personalized messages!\n\nError: ${error.message}\n\nUsing template messages. Check console for details.`);
+                    }
+                    // Use template fallback
+                    return `Dear ${guestName},\n\nThank you for celebrating our ${occasions[details.occasion].toLowerCase()} with us! We love the ${guest.gift || 'your presence'} so much. ${guest.memo ? `${guest.memo} was such a special moment. ` : ''}It means the world having you there. We can't wait to see you again soon! You're such a wonderful ${guest.relationship || 'friend'}.\n\nWith love,\n${details.names}`;
                 }
             };
 
