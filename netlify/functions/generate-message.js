@@ -1,11 +1,10 @@
-// Netlify Function to securely call Claude API
 const https = require('https');
 
 exports.handler = async (event) => {
-  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
@@ -16,11 +15,11 @@ exports.handler = async (event) => {
     if (!prompt) {
       return {
         statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Prompt is required' })
       };
     }
 
-    // Call Claude API using https module
     const postData = JSON.stringify({
       model: 'claude-3-5-haiku-20241022',
       max_tokens: 500,
@@ -40,7 +39,8 @@ exports.handler = async (event) => {
         'Content-Length': Buffer.byteLength(postData),
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
-      }
+      },
+      timeout: 30000
     };
 
     const data = await new Promise((resolve, reject) => {
@@ -62,19 +62,25 @@ exports.handler = async (event) => {
       });
 
       req.on('error', reject);
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('Request timeout'));
+      });
       req.write(postData);
       req.end();
     });
 
     return {
       statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     };
   } catch (error) {
     console.error('Function error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: error.message || 'Internal server error' })
     };
   }
 };

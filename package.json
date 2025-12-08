@@ -1,0 +1,15 @@
+{
+  "name": "thank-you-note-generator",
+  "version": "1.0.0",
+  "description": "AI-powered thank you note generator",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["thank-you", "note", "generator", "ai"],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.x"
+  }
+}

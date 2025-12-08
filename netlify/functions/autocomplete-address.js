@@ -1,11 +1,10 @@
-// Netlify Function to securely call Google Places API
 const https = require('https');
 
 exports.handler = async (event) => {
-  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
@@ -16,15 +15,15 @@ exports.handler = async (event) => {
     if (!input) {
       return {
         statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Input is required' })
       };
     }
 
-    // Call Google Places Autocomplete API using https module
     const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&types=address&components=country:us&key=${process.env.GOOGLE_PLACES_API_KEY}`;
 
     const data = await new Promise((resolve, reject) => {
-      https.get(url, (res) => {
+      const req = https.get(url, { timeout: 10000 }, (res) => {
         let body = '';
         res.on('data', (chunk) => body += chunk);
         res.on('end', () => {
@@ -34,18 +33,25 @@ exports.handler = async (event) => {
             reject(e);
           }
         });
-      }).on('error', reject);
+      });
+      req.on('error', reject);
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('Request timeout'));
+      });
     });
 
     return {
       statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     };
   } catch (error) {
     console.error('Function error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: error.message || 'Internal server error' })
     };
   }
 };
