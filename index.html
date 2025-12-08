@@ -777,6 +777,8 @@
             const [addressSuggestions, setAddressSuggestions] = useState([]);
             const [showSuggestions, setShowSuggestions] = useState(false);
             const [guestAddressSuggestions, setGuestAddressSuggestions] = useState([]);
+            const [addressDebounceTimer, setAddressDebounceTimer] = useState(null);
+            const [guestAddressDebounceTimer, setGuestAddressDebounceTimer] = useState(null);
             const [showGuestSuggestions, setShowGuestSuggestions] = useState(false);
             const [sealVariations, setSealVariations] = useState([]);
             const fileInputRef = useRef(null);
@@ -876,43 +878,52 @@
                 }));
             };
 
-            // Address autocomplete simulation (in production, use Google Places API)
+            // Address autocomplete with debouncing for better performance
             const handleAddressInput = async (value, field) => {
                 setDetails({...details, [field]: value});
 
+                // Clear existing timer
+                if (addressDebounceTimer) {
+                    clearTimeout(addressDebounceTimer);
+                }
+
                 if (field === 'returnAddr' && value.length > 3) {
-                    try {
-                        // Call Google Places Autocomplete via Netlify function
-                        const response = await fetch('/.netlify/functions/autocomplete-address', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                input: value
-                            })
-                        });
+                    // Set new timer - only fetch after 300ms of no typing
+                    const timer = setTimeout(async () => {
+                        try {
+                            // Call Google Places Autocomplete via Netlify function
+                            const response = await fetch('/.netlify/functions/autocomplete-address', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    input: value
+                                })
+                            });
 
-                        if (!response.ok) {
-                            throw new Error('Failed to get address suggestions');
-                        }
+                            if (!response.ok) {
+                                throw new Error('Failed to get address suggestions');
+                            }
 
-                        const data = await response.json();
+                            const data = await response.json();
 
-                        if (data.predictions && data.predictions.length > 0) {
-                            setAddressSuggestions(data.predictions.map(p => ({
-                                description: p.description,
-                                placeId: p.place_id
-                            })));
-                            setShowSuggestions(true);
-                        } else {
+                            if (data.predictions && data.predictions.length > 0) {
+                                setAddressSuggestions(data.predictions.map(p => ({
+                                    description: p.description,
+                                    placeId: p.place_id
+                                })));
+                                setShowSuggestions(true);
+                            } else {
+                                setShowSuggestions(false);
+                            }
+                        } catch (error) {
+                            console.error('Error fetching address suggestions:', error);
+                            // Fallback to no suggestions on error
                             setShowSuggestions(false);
                         }
-                    } catch (error) {
-                        console.error('Error fetching address suggestions:', error);
-                        // Fallback to no suggestions on error
-                        setShowSuggestions(false);
-                    }
+                    }, 300);
+                    setAddressDebounceTimer(timer);
                 } else {
                     setShowSuggestions(false);
                 }
@@ -990,37 +1001,46 @@
             const handleGuestAddressInput = async (value) => {
                 setCurrentGuest({...currentGuest, addr: value});
 
+                // Clear existing timer
+                if (guestAddressDebounceTimer) {
+                    clearTimeout(guestAddressDebounceTimer);
+                }
+
                 if (value.length > 3) {
-                    try {
-                        const response = await fetch('/.netlify/functions/autocomplete-address', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                input: value
-                            })
-                        });
+                    // Set new timer - only fetch after 300ms of no typing
+                    const timer = setTimeout(async () => {
+                        try {
+                            const response = await fetch('/.netlify/functions/autocomplete-address', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    input: value
+                                })
+                            });
 
-                        if (!response.ok) {
-                            throw new Error('Failed to get address suggestions');
-                        }
+                            if (!response.ok) {
+                                throw new Error('Failed to get address suggestions');
+                            }
 
-                        const data = await response.json();
+                            const data = await response.json();
 
-                        if (data.predictions && data.predictions.length > 0) {
-                            setGuestAddressSuggestions(data.predictions.map(p => ({
-                                description: p.description,
-                                placeId: p.place_id
-                            })));
-                            setShowGuestSuggestions(true);
-                        } else {
+                            if (data.predictions && data.predictions.length > 0) {
+                                setGuestAddressSuggestions(data.predictions.map(p => ({
+                                    description: p.description,
+                                    placeId: p.place_id
+                                })));
+                                setShowGuestSuggestions(true);
+                            } else {
+                                setShowGuestSuggestions(false);
+                            }
+                        } catch (error) {
+                            console.error('Error fetching guest address suggestions:', error);
                             setShowGuestSuggestions(false);
                         }
-                    } catch (error) {
-                        console.error('Error fetching guest address suggestions:', error);
-                        setShowGuestSuggestions(false);
-                    }
+                    }, 300);
+                    setGuestAddressDebounceTimer(timer);
                 } else {
                     setShowGuestSuggestions(false);
                 }
@@ -1739,38 +1759,61 @@ Make it completely unique from previous notes with natural flow!`;
                             fontStyle = 'serif';
                         }
                         cardElement.style.fontFamily = `"${fontFamily}", ${fontStyle}`;
+                        cardElement.style.backgroundColor = details.color;
 
-                        // Add pattern overlay using background shorthand with color FIRST, then pattern on top
-                        if (details.design === 'floral') {
-                            cardElement.style.background = `
-                                radial-gradient(circle at 10% 20%, rgba(0,0,0,0.06) 2px, transparent 2px),
-                                radial-gradient(circle at 30% 15%, rgba(0,0,0,0.06) 2px, transparent 2px),
-                                radial-gradient(circle at 25% 25%, rgba(0,0,0,0.06) 2px, transparent 2px),
-                                radial-gradient(circle at 15% 30%, rgba(0,0,0,0.06) 2px, transparent 2px),
-                                radial-gradient(circle at 20% 35%, rgba(0,0,0,0.06) 2px, transparent 2px),
-                                ${details.color}
-                            `;
-                            cardElement.style.backgroundSize = '80px 80px, 80px 80px, 80px 80px, 80px 80px, 80px 80px, auto';
-                        } else if (details.design === 'dots') {
-                            cardElement.style.background = `radial-gradient(circle, rgba(0,0,0,0.1) 2px, transparent 2px) ${details.color}`;
-                            cardElement.style.backgroundSize = '45px 45px';
-                        } else if (details.design === 'stripes') {
-                            cardElement.style.background = `repeating-linear-gradient(90deg, transparent 0px, transparent 44px, rgba(0,0,0,0.08) 44px, rgba(0,0,0,0.08) 46px) ${details.color}`;
-                        } else if (details.design === 'hearts') {
-                            cardElement.style.background = `radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%) ${details.color}`;
-                            cardElement.style.backgroundSize = '60px 60px';
-                        } else if (details.design === 'diamonds') {
-                            cardElement.style.background = `linear-gradient(45deg, rgba(0,0,0,0.08) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.08) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.08) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.08) 75%) ${details.color}`;
-                            cardElement.style.backgroundSize = '45px 45px';
-                            cardElement.style.backgroundPosition = '0 0, 0 22.5px, 22.5px -22.5px, -22.5px 0px';
-                        } else if (details.design === 'waves') {
-                            cardElement.style.background = `repeating-linear-gradient(0deg, transparent 0px, transparent 45px, rgba(0,0,0,0.05) 45px, rgba(0,0,0,0.05) 47px) ${details.color}`;
-                        } else if (details.design === 'grid') {
-                            cardElement.style.background = `linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px) ${details.color}`;
-                            cardElement.style.backgroundSize = '30px 30px';
-                        } else {
-                            // No pattern, just solid color
-                            cardElement.style.backgroundColor = details.color;
+                        // Create a canvas for patterns since html2canvas doesn't render CSS gradients well
+                        if (details.design !== 'solid') {
+                            const patternCanvas = document.createElement('canvas');
+                            const ctx = patternCanvas.getContext('2d');
+
+                            if (details.design === 'stripes') {
+                                patternCanvas.width = 637;
+                                patternCanvas.height = 825;
+                                ctx.fillStyle = details.color;
+                                ctx.fillRect(0, 0, 637, 825);
+                                ctx.fillStyle = 'rgba(0,0,0,0.12)';
+                                for (let x = 0; x < 637; x += 46) {
+                                    ctx.fillRect(x, 0, 3, 825);
+                                }
+                            } else if (details.design === 'dots') {
+                                patternCanvas.width = 637;
+                                patternCanvas.height = 825;
+                                ctx.fillStyle = details.color;
+                                ctx.fillRect(0, 0, 637, 825);
+                                ctx.fillStyle = 'rgba(0,0,0,0.12)';
+                                for (let y = 0; y < 825; y += 45) {
+                                    for (let x = 0; x < 637; x += 45) {
+                                        ctx.beginPath();
+                                        ctx.arc(x + 22, y + 22, 3, 0, Math.PI * 2);
+                                        ctx.fill();
+                                    }
+                                }
+                            } else if (details.design === 'grid') {
+                                patternCanvas.width = 637;
+                                patternCanvas.height = 825;
+                                ctx.fillStyle = details.color;
+                                ctx.fillRect(0, 0, 637, 825);
+                                ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+                                ctx.lineWidth = 1;
+                                for (let x = 0; x < 637; x += 30) {
+                                    ctx.beginPath();
+                                    ctx.moveTo(x, 0);
+                                    ctx.lineTo(x, 825);
+                                    ctx.stroke();
+                                }
+                                for (let y = 0; y < 825; y += 30) {
+                                    ctx.beginPath();
+                                    ctx.moveTo(0, y);
+                                    ctx.lineTo(637, y);
+                                    ctx.stroke();
+                                }
+                            }
+
+                            // Set canvas as background
+                            if (details.design === 'stripes' || details.design === 'dots' || details.design === 'grid') {
+                                cardElement.style.backgroundImage = `url(${patternCanvas.toDataURL()})`;
+                                cardElement.style.backgroundSize = 'cover';
+                            }
                         }
 
                         // Clean up content: remove horizontal rules, excessive line breaks
@@ -2444,15 +2487,15 @@ Make it completely unique from previous notes with natural flow!`;
                                 <button
                                     onClick={() => setInputMethod(null)}
                                     style={{
-                                        background: 'white',
-                                        border: '2px solid #008182',
-                                        color: '#008182',
+                                        background: '#008182',
+                                        border: 'none',
+                                        color: 'white',
                                         padding: '0.75rem 1.5rem',
                                         borderRadius: '8px',
                                         cursor: 'pointer',
                                         fontSize: '1rem',
                                         fontWeight: '600',
-                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                        boxShadow: '0 2px 8px rgba(0, 129, 130, 0.3)',
                                         transition: 'all 0.3s'
                                     }}
                                 >
