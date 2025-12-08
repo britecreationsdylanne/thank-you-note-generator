@@ -1364,18 +1364,33 @@
                     header: true,
                     skipEmptyLines: true,
                     complete: (results) => {
-                        const parsed = results.data.map((r, i) => ({
-                            id: Date.now() + i,
-                            name: r.Name || r.name || r['Guest Name'] || '',
-                            gift: r.Gift || r.gift || r['Gift Description'] || '',
-                            memo: r.Memo || r.memo || r['Special Memory'] || r['Special Moment'] || '',
-                            relationship: r.Relationship || r.relationship || r['Relation'] || '',
-                            addr: r.Address || r.address || r.addr || r['Street Address'] || '',
-                            addr2: r.Address2 || r.address2 || r.addr2 || r['Apartment'] || r['Unit'] || '',
-                            city: r.City || r.city || '',
-                            state: r.State || r.state || '',
-                            zip: r.Zip || r.ZIP || r.zip || r['Zip Code'] || ''
-                        })).filter(g => g.name);
+                        const parsed = results.data.map((r, i) => {
+                            // Support new firstName/lastName format
+                            const firstName = r.Guest1FirstName || r.FirstName || r['First Name'] || '';
+                            const lastName = r.Guest1LastName || r.LastName || r['Last Name'] || '';
+                            const firstName2 = r.Guest2FirstName || r.FirstName2 || r['First Name 2'] || '';
+                            const lastName2 = r.Guest2LastName || r.LastName2 || r['Last Name 2'] || '';
+
+                            // Backwards compatibility with old 'Name' column
+                            const name = r.Name || r.name || r['Guest Name'] || '';
+
+                            return {
+                                id: Date.now() + i,
+                                firstName: firstName,
+                                lastName: lastName,
+                                firstName2: firstName2,
+                                lastName2: lastName2,
+                                name: name, // Keep for backwards compatibility
+                                gift: r.Gift || r.gift || r['Gift Description'] || '',
+                                memo: r.Memo || r.memo || r['Special Memory'] || r['Special Moment'] || '',
+                                relationship: r.Relationship || r.relationship || r['Relation'] || '',
+                                addr: r.Address || r.address || r.addr || r['Street Address'] || '',
+                                addr2: r.Address2 || r.address2 || r.addr2 || r['Apartment'] || r['Unit'] || '',
+                                city: r.City || r.city || '',
+                                state: r.State || r.state || '',
+                                zip: r.Zip || r.ZIP || r.zip || r['Zip Code'] || ''
+                            };
+                        }).filter(g => g.firstName || g.name); // Accept either format
                         setGuests(parsed);
                         setInputMethod('bulk');
                     }
@@ -1395,24 +1410,40 @@
             const handleDrop = (e) => {
                 e.preventDefault();
                 setDragOver(false);
-                
+
                 const files = e.dataTransfer.files;
                 if (files.length > 0 && files[0].name.endsWith('.csv')) {
                     Papa.parse(files[0], {
                         header: true,
                         skipEmptyLines: true,
                         complete: (results) => {
-                            const parsed = results.data.map((r, i) => ({
-                                id: Date.now() + i,
-                                name: r.Name || r.name || r['Guest Name'] || '',
-                                gift: r.Gift || r.gift || r['Gift Description'] || '',
-                                memo: r.Memo || r.memo || r['Special Memory'] || r['Special Moment'] || '',
-                                relationship: r.Relationship || r.relationship || r['Relation'] || '',
-                                addr: r.Address || r.address || r.addr || r['Street Address'] || '',
-                                city: r.City || r.city || '',
-                                state: r.State || r.state || '',
-                                zip: r.Zip || r.ZIP || r.zip || r['Zip Code'] || ''
-                            })).filter(g => g.name);
+                            const parsed = results.data.map((r, i) => {
+                                // Support new firstName/lastName format
+                                const firstName = r.Guest1FirstName || r.FirstName || r['First Name'] || '';
+                                const lastName = r.Guest1LastName || r.LastName || r['Last Name'] || '';
+                                const firstName2 = r.Guest2FirstName || r.FirstName2 || r['First Name 2'] || '';
+                                const lastName2 = r.Guest2LastName || r.LastName2 || r['Last Name 2'] || '';
+
+                                // Backwards compatibility with old 'Name' column
+                                const name = r.Name || r.name || r['Guest Name'] || '';
+
+                                return {
+                                    id: Date.now() + i,
+                                    firstName: firstName,
+                                    lastName: lastName,
+                                    firstName2: firstName2,
+                                    lastName2: lastName2,
+                                    name: name, // Keep for backwards compatibility
+                                    gift: r.Gift || r.gift || r['Gift Description'] || '',
+                                    memo: r.Memo || r.memo || r['Special Memory'] || r['Special Moment'] || '',
+                                    relationship: r.Relationship || r.relationship || r['Relation'] || '',
+                                    addr: r.Address || r.address || r.addr || r['Street Address'] || '',
+                                    addr2: r.Address2 || r.address2 || r.addr2 || r['Apartment'] || r['Unit'] || '',
+                                    city: r.City || r.city || '',
+                                    state: r.State || r.state || '',
+                                    zip: r.Zip || r.ZIP || r.zip || r['Zip Code'] || ''
+                                };
+                            }).filter(g => g.firstName || g.name); // Accept either format
                             setGuests(parsed);
                             setInputMethod('bulk');
                         }
@@ -1420,11 +1451,29 @@
                 }
             };
 
+            // Helper to format guest names for display
+            const formatGuestName = (guest) => {
+                // Handle new format (firstName/lastName)
+                if (guest.firstName && guest.lastName) {
+                    if (guest.firstName2 && guest.lastName2) {
+                        // Both guests have same last name
+                        if (guest.lastName === guest.lastName2) {
+                            return `${guest.firstName} and ${guest.firstName2} ${guest.lastName}`;
+                        }
+                        // Different last names
+                        return `${guest.firstName} ${guest.lastName} and ${guest.firstName2} ${guest.lastName2}`;
+                    }
+                    return `${guest.firstName} ${guest.lastName}`;
+                }
+                // Backwards compatibility with old 'name' field
+                return guest.name || '';
+            };
+
             const addGuest = () => {
-                if (!currentGuest.name) return;
+                if (!currentGuest.firstName || !currentGuest.lastName) return;
                 setGuests([...guests, { ...currentGuest, id: Date.now() }]);
                 setCurrentGuest({
-                    name: '', gift: '', memo: '', relationship: '', addr: '', city: '', state: '', zip: ''
+                    firstName: '', lastName: '', firstName2: '', lastName2: '', gift: '', memo: '', relationship: '', addr: '', addr2: '', city: '', state: '', zip: ''
                 });
             };
 
@@ -2179,13 +2228,6 @@ Make it completely unique from previous notes with natural flow!`;
                             <h3 style={{textAlign: 'center', marginBottom: '1.5rem', color: '#008182'}}>Frequently Asked Questions</h3>
                             <div style={{display: 'grid', gap: '1.5rem'}}>
                                 <div>
-                                    <h4 style={{color: '#008182', marginBottom: '0.5rem', fontSize: '1.05rem'}}>How does the AI generate personalized messages?</h4>
-                                    <p style={{color: '#666', lineHeight: '1.6', margin: 0}}>
-                                        Our AI uses Claude by Anthropic to craft unique thank you messages based on the recipient's gift, your relationship, and any special moments you share. Each message is genuine, heartfelt, and customized - never generic templates!
-                                    </p>
-                                </div>
-
-                                <div>
                                     <h4 style={{color: '#008182', marginBottom: '0.5rem', fontSize: '1.05rem'}}>Is this really free?</h4>
                                     <p style={{color: '#666', lineHeight: '1.6', margin: 0}}>
                                         Yes! The tool is completely free to use. You'll only pay for supplies (cardstock, labels, envelopes) if you choose to print and mail your cards. Generate as many cards as you need at no cost.
@@ -2432,16 +2474,16 @@ Make it completely unique from previous notes with natural flow!`;
                                             <div className="upload-hint">or drag and drop</div>
                                         </div>
                                         <div style={{marginTop: '1rem', padding: '1rem', background: '#F4F7FC', borderRadius: '8px', fontSize: '0.875rem', color: '#666', textAlign: 'left'}}>
-                                            <strong style={{color: '#008182'}}>Required CSV Columns:</strong> Name, Address, City, State, Zip<br/>
-                                            <strong style={{color: '#008182', marginTop: '0.5rem', display: 'block'}}>Optional Columns:</strong> Gift, Special Moment, Relationship<br/>
-                                            <em style={{fontSize: '0.8rem', color: '#999'}}>Headers can also be: "Guest Name", "Gift Description", "Special Memory", "Relation", etc.</em>
+                                            <strong style={{color: '#008182'}}>Required CSV Columns:</strong> Guest1FirstName, Guest1LastName, Address, City, State, Zip<br/>
+                                            <strong style={{color: '#008182', marginTop: '0.5rem', display: 'block'}}>Optional Columns:</strong> Guest2FirstName, Guest2LastName, Gift, Special Moment, Relationship<br/>
+                                            <em style={{fontSize: '0.8rem', color: '#999'}}>For couples, include Guest2FirstName and Guest2LastName. Old format (single "Name" column) still supported.</em>
                                             <br/><br/>
                                             <button
                                                 onClick={() => {
-                                                    const csv = `Name,Gift,Special Moment,Relationship,Address,City,State,Zip
-"Sarah Johnson","wine glasses","heartfelt toast","friend","123 Main St","Boston","MA","02101"
-"Mike Smith","picture frame","traveling so far","cousin","456 Oak Ave","Portland","OR","97201"
-"Emily Davis","kitchen mixer","","coworker","789 Pine Rd","Austin","TX","78701"`;
+                                                    const csv = `Guest1FirstName,Guest1LastName,Guest2FirstName,Guest2LastName,Gift,Special Moment,Relationship,Address,City,State,Zip
+"Sarah","Johnson","","","wine glasses","heartfelt toast","friend","123 Main St","Boston","MA","02101"
+"Jessica","Smith","Mike","Smith","picture frame","traveling so far","cousins","456 Oak Ave","Portland","OR","97201"
+"Emily","Davis","","","kitchen mixer","","coworker","789 Pine Rd","Austin","TX","78701"`;
                                                     const blob = new Blob([csv], { type: 'text/csv' });
                                                     const url = URL.createObjectURL(blob);
                                                     const a = document.createElement('a');
@@ -2485,7 +2527,7 @@ Make it completely unique from previous notes with natural flow!`;
                                             {guests.slice(0, 10).map(g => (
                                                 <div key={g.id} className="guest-item">
                                                     <div className="guest-item-info">
-                                                        <strong>{g.name}</strong>
+                                                        <strong>{formatGuestName(g)}</strong>
                                                         {g.gift && <span>Gift: {g.gift}</span>}
                                                         {g.city && <span> • {g.city}, {g.state}</span>}
                                                     </div>
@@ -2522,14 +2564,51 @@ Make it completely unique from previous notes with natural flow!`;
                         {inputMethod === 'manual' && (
                             <>
                                 <div className="card">
-                                    <div className="form-grid">
-                                        <div>
-                                            <label>Guest Name *</label>
-                                            <input 
-                                                value={currentGuest.name}
-                                                onChange={(e) => setCurrentGuest({...currentGuest, name: e.target.value})}
-                                            />
+                                    <div style={{marginBottom: '1.5rem', padding: '1rem', background: '#F4F7FC', borderRadius: '8px'}}>
+                                        <strong style={{color: '#008182', display: 'block', marginBottom: '0.5rem'}}>Guest 1</strong>
+                                        <div className="form-grid">
+                                            <div>
+                                                <label>First Name *</label>
+                                                <input
+                                                    value={currentGuest.firstName}
+                                                    onChange={(e) => setCurrentGuest({...currentGuest, firstName: e.target.value})}
+                                                    placeholder="Jessica"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label>Last Name *</label>
+                                                <input
+                                                    value={currentGuest.lastName}
+                                                    onChange={(e) => setCurrentGuest({...currentGuest, lastName: e.target.value})}
+                                                    placeholder="Smith"
+                                                />
+                                            </div>
                                         </div>
+                                    </div>
+
+                                    <div style={{marginBottom: '1.5rem', padding: '1rem', background: '#F4F7FC', borderRadius: '8px'}}>
+                                        <strong style={{color: '#008182', display: 'block', marginBottom: '0.5rem'}}>Guest 2 (Optional - for couples)</strong>
+                                        <div className="form-grid">
+                                            <div>
+                                                <label>First Name</label>
+                                                <input
+                                                    value={currentGuest.firstName2}
+                                                    onChange={(e) => setCurrentGuest({...currentGuest, firstName2: e.target.value})}
+                                                    placeholder="Mike"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label>Last Name</label>
+                                                <input
+                                                    value={currentGuest.lastName2}
+                                                    onChange={(e) => setCurrentGuest({...currentGuest, lastName2: e.target.value})}
+                                                    placeholder="Smith"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid">
                                         <div>
                                             <label>Gift</label>
                                             <input
@@ -2631,7 +2710,7 @@ Make it completely unique from previous notes with natural flow!`;
                                             {guests.map(g => (
                                                 <div key={g.id} className="guest-item">
                                                     <div className="guest-item-info">
-                                                        <strong>{g.name}</strong>
+                                                        <strong>{formatGuestName(g)}</strong>
                                                         {g.gift && <span>Gift: {g.gift}</span>}
                                                         {g.city && <span> • {g.city}, {g.state}</span>}
                                                     </div>
