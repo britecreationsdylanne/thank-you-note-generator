@@ -1705,49 +1705,71 @@ Make it completely unique from previous notes with natural flow!`;
                         const cardElement = document.createElement('div');
                         cardElement.style.width = '637px'; // 4.25 inches * 150 DPI
                         cardElement.style.height = '825px'; // 5.5 inches * 150 DPI
-                        cardElement.style.backgroundColor = details.color;
                         cardElement.style.padding = '75px';
                         cardElement.style.boxSizing = 'border-box';
-                        cardElement.style.fontFamily = `'${details.font === 'times' ? 'Times New Roman' : details.font === 'dancing' ? 'Dancing Script' : details.font === 'caveat' ? 'Caveat' : details.font === 'kalam' ? 'Kalam' : details.font === 'vibes' ? 'Great Vibes' : details.font === 'satisfy' ? 'Satisfy' : details.font === 'palatino' ? 'Palatino Linotype' : 'Garamond'}', ${details.font.includes('dancing') || details.font.includes('vibes') || details.font.includes('satisfy') || details.font.includes('caveat') || details.font.includes('kalam') ? 'cursive' : 'serif'}`;
                         cardElement.style.fontSize = '18px';
                         cardElement.style.color = '#282828';
                         cardElement.style.whiteSpace = 'pre-line';
                         cardElement.style.lineHeight = '1.6';
                         cardElement.style.position = 'relative';
 
-                        // Add pattern overlay if needed
+                        // Set font family with proper web font loading
+                        let fontFamily = 'Garamond';
+                        let fontStyle = 'serif';
+                        if (details.font === 'times') {
+                            fontFamily = 'Times New Roman';
+                            fontStyle = 'serif';
+                        } else if (details.font === 'dancing') {
+                            fontFamily = 'Dancing Script';
+                            fontStyle = 'cursive';
+                        } else if (details.font === 'caveat') {
+                            fontFamily = 'Caveat';
+                            fontStyle = 'cursive';
+                        } else if (details.font === 'kalam') {
+                            fontFamily = 'Kalam';
+                            fontStyle = 'cursive';
+                        } else if (details.font === 'vibes') {
+                            fontFamily = 'Great Vibes';
+                            fontStyle = 'cursive';
+                        } else if (details.font === 'satisfy') {
+                            fontFamily = 'Satisfy';
+                            fontStyle = 'cursive';
+                        } else if (details.font === 'palatino') {
+                            fontFamily = 'Palatino Linotype';
+                            fontStyle = 'serif';
+                        }
+                        cardElement.style.fontFamily = `"${fontFamily}", ${fontStyle}`;
+
+                        // Add pattern overlay using background shorthand with color FIRST, then pattern on top
                         if (details.design === 'floral') {
-                            cardElement.style.backgroundImage = `
+                            cardElement.style.background = `
                                 radial-gradient(circle at 10% 20%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 30% 15%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 25% 25%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 15% 30%, rgba(0,0,0,0.06) 2px, transparent 2px),
-                                radial-gradient(circle at 20% 35%, rgba(0,0,0,0.06) 2px, transparent 2px)
+                                radial-gradient(circle at 20% 35%, rgba(0,0,0,0.06) 2px, transparent 2px),
+                                ${details.color}
                             `;
-                            cardElement.style.backgroundSize = '80px 80px';
-                            cardElement.style.backgroundColor = details.color;
+                            cardElement.style.backgroundSize = '80px 80px, 80px 80px, 80px 80px, 80px 80px, 80px 80px, auto';
                         } else if (details.design === 'dots') {
-                            cardElement.style.backgroundImage = `radial-gradient(circle, rgba(0,0,0,0.08) 2px, transparent 2px)`;
+                            cardElement.style.background = `radial-gradient(circle, rgba(0,0,0,0.1) 2px, transparent 2px) ${details.color}`;
                             cardElement.style.backgroundSize = '45px 45px';
-                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'stripes') {
-                            cardElement.style.backgroundImage = `repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(0,0,0,0.05) 44px, rgba(0,0,0,0.05) 45px)`;
-                            cardElement.style.backgroundColor = details.color;
+                            cardElement.style.background = `repeating-linear-gradient(90deg, transparent 0px, transparent 44px, rgba(0,0,0,0.08) 44px, rgba(0,0,0,0.08) 46px) ${details.color}`;
                         } else if (details.design === 'hearts') {
-                            cardElement.style.backgroundImage = `radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%)`;
+                            cardElement.style.background = `radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%) ${details.color}`;
                             cardElement.style.backgroundSize = '60px 60px';
-                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'diamonds') {
-                            cardElement.style.backgroundImage = `linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.05) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.05) 75%)`;
+                            cardElement.style.background = `linear-gradient(45deg, rgba(0,0,0,0.08) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.08) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.08) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.08) 75%) ${details.color}`;
                             cardElement.style.backgroundSize = '45px 45px';
                             cardElement.style.backgroundPosition = '0 0, 0 22.5px, 22.5px -22.5px, -22.5px 0px';
-                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'waves') {
-                            cardElement.style.backgroundImage = `repeating-linear-gradient(0deg, transparent, transparent 45px, rgba(0,0,0,0.03) 45px, rgba(0,0,0,0.03) 46px)`;
-                            cardElement.style.backgroundColor = details.color;
+                            cardElement.style.background = `repeating-linear-gradient(0deg, transparent 0px, transparent 45px, rgba(0,0,0,0.05) 45px, rgba(0,0,0,0.05) 47px) ${details.color}`;
                         } else if (details.design === 'grid') {
-                            cardElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)`;
+                            cardElement.style.background = `linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px) ${details.color}`;
                             cardElement.style.backgroundSize = '30px 30px';
+                        } else {
+                            // No pattern, just solid color
                             cardElement.style.backgroundColor = details.color;
                         }
 
@@ -1760,11 +1782,16 @@ Make it completely unique from previous notes with natural flow!`;
 
                         tempContainer.appendChild(cardElement);
 
+                        // Wait for fonts to load before rendering
+                        await document.fonts.ready;
+
                         // Convert to canvas then to image
                         const canvas = await html2canvas(cardElement, {
                             scale: 2,
                             backgroundColor: null,
-                            logging: false
+                            logging: false,
+                            useCORS: true,
+                            allowTaint: true
                         });
 
                         const imgData = canvas.toDataURL('image/jpeg', 1.0);
