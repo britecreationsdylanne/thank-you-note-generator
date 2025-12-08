@@ -1,4 +1,6 @@
 // Netlify Function to securely call Claude API
+const https = require('https');
+
 exports.handler = async (event) => {
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
@@ -18,34 +20,51 @@ exports.handler = async (event) => {
       };
     }
 
-    // Call Claude API with the API key from environment variable
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    // Call Claude API using https module
+    const postData = JSON.stringify({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    });
+
+    const options = {
+      hostname: 'api.anthropic.com',
+      port: 443,
+      path: '/v1/messages',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData),
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',
-        max_tokens: 500,
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      })
+      }
+    };
+
+    const data = await new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let body = '';
+        res.on('data', (chunk) => body += chunk);
+        res.on('end', () => {
+          try {
+            if (res.statusCode !== 200) {
+              console.error('Claude API error:', body);
+              reject(new Error(`HTTP ${res.statusCode}: ${body}`));
+            } else {
+              resolve(JSON.parse(body));
+            }
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+
+      req.on('error', reject);
+      req.write(postData);
+      req.end();
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Claude API error:', errorText);
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({ error: 'Failed to generate message' })
-      };
-    }
-
-    const data = await response.json();
 
     return {
       statusCode: 200,
