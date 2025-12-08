@@ -1666,6 +1666,28 @@ Make it completely unique from previous notes with natural flow!`;
                     return;
                 }
 
+                // Test API connection FIRST
+                console.log('🧪 Testing Netlify function...');
+                try {
+                    const testResponse = await fetch('/.netlify/functions/generate-message', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: 'Test - respond with OK' })
+                    });
+
+                    if (!testResponse.ok) {
+                        const errorText = await testResponse.text();
+                        console.error('❌ API test failed:', testResponse.status, errorText);
+                        alert(`🚨 AI GENERATION NOT WORKING!\n\nAPI Status: ${testResponse.status}\nError: ${errorText}\n\nYour messages will use basic templates instead.\n\nCheck Netlify function logs for details.`);
+                    } else {
+                        const testData = await testResponse.json();
+                        console.log('✅ API test passed!', testData);
+                    }
+                } catch (testError) {
+                    console.error('❌ Cannot reach Netlify function:', testError);
+                    alert(`🚨 CANNOT REACH API!\n\nError: ${testError.message}\n\nYour messages will use basic templates.`);
+                }
+
                 setIsGenerating(true);
                 setGenerationProgress({ current: 0, total: guests.length });
 
@@ -1674,7 +1696,9 @@ Make it completely unique from previous notes with natural flow!`;
                     for (let i = 0; i < guests.length; i++) {
                         const g = guests[i];
                         setGenerationProgress({ current: i + 1, total: guests.length });
+                        console.log(`📝 Generating note ${i + 1}/${guests.length} for:`, formatGuestName(g));
                         const content = await generateNoteWithAI(g);
+                        console.log(`✅ Generated ${content.length} characters for`, formatGuestName(g));
                         generated.push({
                             guestName: formatGuestName(g),
                             gift: g.gift,
