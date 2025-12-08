@@ -2108,7 +2108,31 @@ Make it completely unique from previous notes with natural flow!`;
                         </div>
 
                         <div style={{textAlign: 'center', margin: '2rem 0'}}>
-                            <button className="cta-button" onClick={() => setCurrentPage('details')}>
+                            <button
+                                onClick={() => setCurrentPage('details')}
+                                style={{
+                                    background: '#008182',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '1rem 2.5rem',
+                                    fontSize: '1.125rem',
+                                    borderRadius: '12px',
+                                    cursor: 'pointer',
+                                    fontWeight: '600',
+                                    transition: 'all 0.3s',
+                                    boxShadow: '0 4px 12px rgba(0, 129, 130, 0.3)'
+                                }}
+                                onMouseOver={(e) => {
+                                    e.target.style.background = '#31D7CA';
+                                    e.target.style.transform = 'translateY(-2px)';
+                                    e.target.style.boxShadow = '0 6px 16px rgba(0, 129, 130, 0.4)';
+                                }}
+                                onMouseOut={(e) => {
+                                    e.target.style.background = '#008182';
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = '0 4px 12px rgba(0, 129, 130, 0.3)';
+                                }}
+                            >
                                 Get Started Free →
                             </button>
                         </div>
