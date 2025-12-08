@@ -73,11 +73,18 @@
         }
         
         .feature-card {
-            background: white;
+            background: linear-gradient(135deg, #E1E7EF 0%, #F4F7FC 100%);
             border-radius: 16px;
             padding: 2.5rem 2rem;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0, 129, 130, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
         
         .feature-icon {
@@ -97,18 +104,19 @@
         }
         
         .how-it-works {
-            background: white;
+            background: linear-gradient(135deg, #008182 0%, #31D7CA 100%);
             border-radius: 24px;
             padding: 3rem 2rem;
             max-width: 1200px;
             margin: 0 auto 3rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 16px rgba(0,129,130,0.2);
         }
         
         .how-it-works h2 {
             text-align: center;
             font-size: 2.5rem;
             margin-bottom: 3rem;
+            color: white;
         }
         
         .steps-grid {
@@ -122,8 +130,8 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: #008182;
-            color: white;
+            background: white;
+            color: #008182;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -131,24 +139,28 @@
             font-weight: 600;
             margin: 0 auto 1rem;
         }
-        
+
         .step h3 {
             font-size: 1.25rem;
             margin-bottom: 0.5rem;
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
+            color: white;
         }
-        
+
         .step p {
-            color: #666;
+            color: rgba(255, 255, 255, 0.95);
             font-size: 0.95rem;
         }
-        
+
         .tip {
             text-align: center;
             margin-top: 2rem;
-            color: #31D7CA;
+            color: white;
             font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 12px;
         }
         
         .btn-primary {
@@ -1586,7 +1598,8 @@ Make it completely unique from previous notes with natural flow!`;
 
             const generateCardsPDF = async () => {
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ orientation: 'landscape', unit: 'in', format: [4.25, 5.5] });
+                // Standard 8.5" x 11" page with 4 postcards (Avery 5389 format)
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'in', format: 'letter' });
 
                 // Show loading message
                 const generateButton = event.target;
@@ -1596,7 +1609,7 @@ Make it completely unique from previous notes with natural flow!`;
                     generateButton.disabled = true;
                     generateButton.style.opacity = '0.7';
                 }
-                
+
                 try {
                     // Create a temporary container for rendering cards
                     const tempContainer = document.createElement('div');
@@ -1605,9 +1618,20 @@ Make it completely unique from previous notes with natural flow!`;
                     tempContainer.style.top = '0';
                     document.body.appendChild(tempContainer);
 
+                    // Avery 5389 layout: 2 columns x 2 rows, each card is 5.5" x 4.25"
+                    const cardWidth = 5.5;
+                    const cardHeight = 4.25;
+                    const marginX = (8.5 - (cardWidth * 2)) / 2; // Center horizontally
+                    const marginY = (11 - (cardHeight * 2)) / 2; // Center vertically
+
                     for (let i = 0; i < notes.length; i++) {
                         const note = notes[i];
-                        if (i > 0) pdf.addPage();
+                        const positionOnPage = i % 4;
+
+                        // Add new page every 4 cards
+                        if (i > 0 && positionOnPage === 0) {
+                            pdf.addPage();
+                        }
 
                         // Create a card element with actual HTML/CSS
                         const cardElement = document.createElement('div');
@@ -1678,7 +1702,14 @@ Make it completely unique from previous notes with natural flow!`;
                         });
 
                         const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                        pdf.addImage(imgData, 'JPEG', 0, 0, 5.5, 4.25);
+
+                        // Calculate position on page (2x2 grid)
+                        const col = positionOnPage % 2;
+                        const row = Math.floor(positionOnPage / 2);
+                        const x = marginX + (col * cardWidth);
+                        const y = marginY + (row * cardHeight);
+
+                        pdf.addImage(imgData, 'JPEG', x, y, cardWidth, cardHeight);
 
                         tempContainer.removeChild(cardElement);
                     }
@@ -1853,33 +1884,35 @@ Make it completely unique from previous notes with natural flow!`;
                 };
                 const color = hexToRgb(details.color);
                 
-                // Layout: 3 columns x 4 rows = 12 seals per page
+                // Layout for standard 1.5" round sticker sheets (Avery 22807 compatible)
+                // 3 columns x 8 rows = 24 seals per page
                 const sealDiameter = 1.5;
                 const cols = 3;
-                const rows = 4;
+                const rows = 8;
                 const pageWidth = 8.5;
                 const pageHeight = 11;
-                
-                // Calculate spacing to center the grid
-                const totalWidth = cols * sealDiameter;
-                const totalHeight = rows * sealDiameter;
-                const marginX = (pageWidth - totalWidth) / 2;
-                const marginY = (pageHeight - totalHeight) / 2;
+
+                // Standard sticker sheet spacing
+                const horizontalSpacing = 2.6875; // Distance between circle centers horizontally
+                const verticalSpacing = 1.25;     // Distance between circle centers vertically
+                const marginX = 0.8125;            // Left margin
+                const marginY = 0.5;               // Top margin
                 
                 const count = notes.length * 5; // 5 seals per guest
-                
+                const sealsPerPage = cols * rows; // 24 seals per page
+
                 for (let i = 0; i < count; i++) {
-                    // Add new page every 12 seals
-                    if (i > 0 && i % 12 === 0) {
+                    // Add new page every 24 seals
+                    if (i > 0 && i % sealsPerPage === 0) {
                         pdf.addPage();
                     }
-                    
-                    const pos = i % 12;
+
+                    const pos = i % sealsPerPage;
                     const col = pos % cols;
                     const row = Math.floor(pos / cols);
-                    
-                    const centerX = marginX + (col * sealDiameter) + (sealDiameter / 2);
-                    const centerY = marginY + (row * sealDiameter) + (sealDiameter / 2);
+
+                    const centerX = marginX + (col * horizontalSpacing);
+                    const centerY = marginY + (row * verticalSpacing);
                     const radius = sealDiameter / 2;
                     
                     // Background circle
@@ -2030,7 +2063,7 @@ Make it completely unique from previous notes with natural flow!`;
                             <div className="feature-card">
                                 <div className="feature-icon">💌</div>
                                 <h3>Beautiful Cards</h3>
-                                <p>5.5" x 4.25" folded cards with custom designs</p>
+                                <p>5.5" x 4.25" postcards with custom designs</p>
                             </div>
                             <div className="feature-card">
                                 <div className="feature-icon">🏷️</div>
@@ -2042,6 +2075,12 @@ Make it completely unique from previous notes with natural flow!`;
                                 <h3>Custom Seals</h3>
                                 <p>8 design styles with your initials</p>
                             </div>
+                        </div>
+
+                        <div style={{textAlign: 'center', margin: '2rem 0'}}>
+                            <button className="cta-button" onClick={() => setCurrentPage('details')}>
+                                Get Started Free
+                            </button>
                         </div>
 
                         <div className="how-it-works">
@@ -2104,7 +2143,7 @@ Make it completely unique from previous notes with natural flow!`;
                                 <div>
                                     <h4 style={{color: '#008182', marginBottom: '0.5rem', fontSize: '1.05rem'}}>What do I need to print my cards?</h4>
                                     <p style={{color: '#666', lineHeight: '1.6', margin: 0}}>
-                                        You'll need 8.5" x 5.5" cardstock (110lb), Avery 5160 address labels, 1.5" round sticker sheets for seals, and A2 envelopes (4⅜" x 5¾"). Links to purchase on Amazon are provided in the download step.
+                                        You'll need Avery 5389 postcard stock (4 postcards per 8.5" x 11" sheet), Avery 5160 address labels, 1.5" round sticker sheets (Avery 22807) for seals, and A2 envelopes (4⅜" x 5¾"). Links to purchase on Amazon are provided in the download step.
                                     </p>
                                 </div>
 
@@ -2878,7 +2917,7 @@ Make it completely unique from previous notes with natural flow!`;
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Cards</strong>
                                             <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5'}}>
-                                                Print on 8.5" x 5.5" cardstock (110lb weight recommended). After printing, fold each card in half to create a 5.5" x 4.25" folded card. The design and message are already formatted for you!
+                                                Print on Avery 5389 postcard stock (4 postcards per 8.5" x 11" sheet). Each postcard is 5.5" x 4.25" - no folding required! The design and message are already formatted and ready to print.
                                             </p>
                                         </div>
                                     </div>
@@ -2938,12 +2977,12 @@ Make it completely unique from previous notes with natural flow!`;
                                     <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                                         <span style={{fontSize: '1.25rem'}}>💌</span>
                                         <div>
-                                            <strong style={{color: '#008182'}}>Card Stock (8.5" x 5.5", 110lb)</strong>
-                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— folds to 5.5" x 4.25" cards</span>
+                                            <strong style={{color: '#008182'}}>Avery 5389 Postcards</strong>
+                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— 4 per sheet, 5.5" x 4.25"</span>
                                         </div>
                                     </div>
                                     <a
-                                        href="https://www.amazon.com/s?k=110lb+cardstock+8.5x11+half+fold"
+                                        href="https://www.amazon.com/Avery-Printable-Invitation-Printers-Postcards/dp/B001PMC4TW"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{
@@ -3017,7 +3056,7 @@ Make it completely unique from previous notes with natural flow!`;
                                         <span style={{fontSize: '1.25rem'}}>✉️</span>
                                         <div>
                                             <strong style={{color: '#008182'}}>A2 Envelopes (4⅜" x 5¾")</strong>
-                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— fits folded cards</span>
+                                            <span style={{color: '#999', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— fits postcards</span>
                                         </div>
                                     </div>
                                     <a
