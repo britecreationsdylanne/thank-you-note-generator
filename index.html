@@ -1713,7 +1713,6 @@ Make it completely unique from previous notes with natural flow!`;
 
                         // Add pattern overlay if needed
                         if (details.design === 'floral') {
-                            // Create a more visible floral pattern with multiple flower shapes
                             const floralPattern = `
                                 radial-gradient(circle at 10% 20%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 30% 15%, rgba(0,0,0,0.06) 2px, transparent 2px),
@@ -1721,32 +1720,25 @@ Make it completely unique from previous notes with natural flow!`;
                                 radial-gradient(circle at 15% 30%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 20% 35%, rgba(0,0,0,0.06) 2px, transparent 2px)
                             `;
-                            cardElement.style.backgroundImage = floralPattern;
+                            cardElement.style.background = `${floralPattern}, ${details.color}`;
                             cardElement.style.backgroundSize = '80px 80px';
-                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'dots') {
-                            cardElement.style.backgroundImage = `radial-gradient(circle, rgba(0,0,0,0.08) 2px, transparent 2px)`;
+                            cardElement.style.background = `radial-gradient(circle, rgba(0,0,0,0.08) 2px, transparent 2px) ${details.color}`;
                             cardElement.style.backgroundSize = '45px 45px';
-                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'stripes') {
-                            cardElement.style.backgroundImage = `repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(0,0,0,0.05) 44px, rgba(0,0,0,0.05) 45px)`;
-                            cardElement.style.backgroundColor = details.color;
+                            cardElement.style.background = `repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(0,0,0,0.05) 44px, rgba(0,0,0,0.05) 45px) ${details.color}`;
                         } else if (details.design === 'hearts') {
-                            cardElement.style.backgroundImage = `radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%)`;
+                            cardElement.style.background = `radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%), ${details.color}`;
                             cardElement.style.backgroundSize = '60px 60px';
-                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'diamonds') {
-                            cardElement.style.backgroundImage = `linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.05) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.05) 75%)`;
+                            cardElement.style.background = `linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.05) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.05) 75%), ${details.color}`;
                             cardElement.style.backgroundSize = '45px 45px';
                             cardElement.style.backgroundPosition = '0 0, 0 22.5px, 22.5px -22.5px, -22.5px 0px';
-                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'waves') {
-                            cardElement.style.backgroundImage = `repeating-linear-gradient(0deg, transparent, transparent 45px, rgba(0,0,0,0.03) 45px, rgba(0,0,0,0.03) 46px)`;
-                            cardElement.style.backgroundColor = details.color;
+                            cardElement.style.background = `repeating-linear-gradient(0deg, transparent, transparent 45px, rgba(0,0,0,0.03) 45px, rgba(0,0,0,0.03) 46px) ${details.color}`;
                         } else if (details.design === 'grid') {
-                            cardElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)`;
+                            cardElement.style.background = `linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px), ${details.color}`;
                             cardElement.style.backgroundSize = '30px 30px';
-                            cardElement.style.backgroundColor = details.color;
                         }
 
                         // Clean up content: remove horizontal rules, excessive line breaks
@@ -1956,15 +1948,13 @@ Make it completely unique from previous notes with natural flow!`;
                 const pageWidth = 8.5;
                 const pageHeight = 11;
 
-                // Avery 22807 actual specifications
-                // Horizontal: 8.5" page, 3 labels, each 1.5" diameter
-                // Total usable width: 8.5" - (2 * side margins)
-                // Left margin: 0.40625", Right margin: 0.40625"
-                // Space between centers: (8.5 - 0.8125) / 2 = 3.84375"
-                const horizontalSpacing = 2.75;    // Distance between circle centers
-                const verticalSpacing = 1.375;     // Distance between circle centers
-                const marginX = 0.96875;           // Left margin to first seal center
-                const marginY = 0.6875;            // Top margin to first seal center
+                // Avery 22807 precise specifications
+                // 3 columns x 8 rows of 1.5" diameter circles
+                // Standard measurements from Avery template
+                const horizontalSpacing = 2.8125;  // Distance between circle centers (2.8125")
+                const verticalSpacing = 1.375;     // Distance between circle centers (1.375")
+                const marginX = 0.9375;            // Left margin to first seal center (15/16")
+                const marginY = 0.6875;            // Top margin to first seal center (11/16")
                 
                 const count = notes.length * 5; // 5 seals per guest
                 const sealsPerPage = cols * rows; // 24 seals per page
@@ -2237,6 +2227,13 @@ Make it completely unique from previous notes with natural flow!`;
                                     <h4 style={{color: '#008182', marginBottom: '0.5rem', fontSize: '1.05rem'}}>Is this really free?</h4>
                                     <p style={{color: '#666', lineHeight: '1.6', margin: 0}}>
                                         Yes! The tool is completely free to use. You'll only pay for supplies (cardstock, labels, envelopes) if you choose to print and mail your cards. Generate as many cards as you need at no cost.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h4 style={{color: '#008182', marginBottom: '0.5rem', fontSize: '1.05rem'}}>What events can I create thank you cards for?</h4>
+                                    <p style={{color: '#666', lineHeight: '1.6', margin: 0}}>
+                                        Our AI supports a wide range of occasions including weddings, baby showers, bridal showers, birthdays, graduations, anniversaries, engagement parties, baptisms/christenings, bar/bat mitzvahs, retirement parties, housewarming parties, and general celebrations. Simply select your event type and the AI will tailor the message tone and wording appropriately.
                                     </p>
                                 </div>
 
