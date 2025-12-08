@@ -1631,10 +1631,6 @@ Make it completely unique from previous notes with natural flow!`;
                         console.error('❌ Claude API HTTP ERROR:');
                         console.error('Status:', response.status, response.statusText);
                         console.error('Response:', errorText);
-                        // Show alert for first guest only
-                        if (guests.indexOf(guest) === 0) {
-                            alert(`⚠️ AI generation failed! Using template messages instead.\n\nError: ${response.status} ${response.statusText}\n\nThis likely means the Anthropic API key is not configured in Netlify.`);
-                        }
                         throw new Error(`API returned ${response.status}: ${errorText}`);
                     }
 
@@ -1651,11 +1647,7 @@ Make it completely unique from previous notes with natural flow!`;
                 } catch (error) {
                     console.error('❌ Error generating AI note for', guestName, ':', error);
                     console.error('Error details:', error.message);
-                    // Show warning for first guest only
-                    if (guests.indexOf(guest) === 0) {
-                        alert(`⚠️ Cannot generate personalized messages!\n\nError: ${error.message}\n\nUsing template messages. Check console for details.`);
-                    }
-                    // Use template fallback
+                    // Silent fallback to template
                     return `Dear ${guestName},\n\nThank you for celebrating our ${occasions[details.occasion].toLowerCase()} with us! We love the ${guest.gift || 'your presence'} so much. ${guest.memo ? `${guest.memo} was such a special moment. ` : ''}It means the world having you there. We can't wait to see you again soon! You're such a wonderful ${guest.relationship || 'friend'}.\n\nWith love,\n${details.names}`;
                 }
             };
@@ -1845,10 +1837,79 @@ Make it completely unique from previous notes with natural flow!`;
                                     ctx.lineTo(637, y);
                                     ctx.stroke();
                                 }
+                            } else if (details.design === 'floral') {
+                                patternCanvas.width = 637;
+                                patternCanvas.height = 825;
+                                ctx.fillStyle = details.color;
+                                ctx.fillRect(0, 0, 637, 825);
+                                ctx.fillStyle = 'rgba(0,0,0,0.08)';
+                                // Draw scattered small circles for floral effect
+                                for (let y = 0; y < 825; y += 80) {
+                                    for (let x = 0; x < 637; x += 80) {
+                                        ctx.beginPath();
+                                        ctx.arc(x + 8, y + 16, 2, 0, Math.PI * 2);
+                                        ctx.fill();
+                                        ctx.beginPath();
+                                        ctx.arc(x + 24, y + 12, 2, 0, Math.PI * 2);
+                                        ctx.fill();
+                                        ctx.beginPath();
+                                        ctx.arc(x + 20, y + 20, 2, 0, Math.PI * 2);
+                                        ctx.fill();
+                                        ctx.beginPath();
+                                        ctx.arc(x + 12, y + 24, 2, 0, Math.PI * 2);
+                                        ctx.fill();
+                                    }
+                                }
+                            } else if (details.design === 'diamonds') {
+                                patternCanvas.width = 637;
+                                patternCanvas.height = 825;
+                                ctx.fillStyle = details.color;
+                                ctx.fillRect(0, 0, 637, 825);
+                                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                                for (let y = 0; y < 825; y += 45) {
+                                    for (let x = 0; x < 637; x += 45) {
+                                        ctx.beginPath();
+                                        ctx.moveTo(x + 22, y);
+                                        ctx.lineTo(x + 33, y + 11);
+                                        ctx.lineTo(x + 22, y + 22);
+                                        ctx.lineTo(x + 11, y + 11);
+                                        ctx.closePath();
+                                        ctx.fill();
+                                    }
+                                }
+                            } else if (details.design === 'waves') {
+                                patternCanvas.width = 637;
+                                patternCanvas.height = 825;
+                                ctx.fillStyle = details.color;
+                                ctx.fillRect(0, 0, 637, 825);
+                                ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+                                ctx.lineWidth = 2;
+                                for (let y = 0; y < 825; y += 46) {
+                                    ctx.beginPath();
+                                    ctx.moveTo(0, y);
+                                    ctx.lineTo(637, y);
+                                    ctx.stroke();
+                                }
+                            } else if (details.design === 'hearts') {
+                                patternCanvas.width = 637;
+                                patternCanvas.height = 825;
+                                ctx.fillStyle = details.color;
+                                ctx.fillRect(0, 0, 637, 825);
+                                ctx.fillStyle = 'rgba(255,192,203,0.3)';
+                                for (let y = 0; y < 825; y += 60) {
+                                    for (let x = 0; x < 637; x += 60) {
+                                        ctx.beginPath();
+                                        ctx.arc(x + 15, y + 18, 8, 0, Math.PI * 2);
+                                        ctx.fill();
+                                        ctx.beginPath();
+                                        ctx.arc(x + 25, y + 18, 8, 0, Math.PI * 2);
+                                        ctx.fill();
+                                    }
+                                }
                             }
 
                             // Set canvas as background
-                            if (details.design === 'stripes' || details.design === 'dots' || details.design === 'grid') {
+                            if (details.design !== 'solid') {
                                 cardElement.style.backgroundImage = `url(${patternCanvas.toDataURL()})`;
                                 cardElement.style.backgroundSize = 'cover';
                             }
