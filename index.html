@@ -765,7 +765,7 @@
             });
             const [guests, setGuests] = useState([]);
             const [currentGuest, setCurrentGuest] = useState({
-                name: '', gift: '', memo: '', relationship: '', addr: '', addr2: '', city: '', state: '', zip: ''
+                firstName: '', lastName: '', firstName2: '', lastName2: '', gift: '', memo: '', relationship: '', addr: '', addr2: '', city: '', state: '', zip: ''
             });
             const [notes, setNotes] = useState([]);
             const [editingNoteIndex, setEditingNoteIndex] = useState(null);
@@ -1182,17 +1182,22 @@
                 // Build the thank you note in a natural, conversational way
                 let message = '';
 
-                // Greeting - extract first name only
-                const firstName = g.name.split(' ')[0].split(',')[0];
+                // Greeting - handle single person or couple
+                const firstName1 = g.firstName || g.name?.split(' ')[0].split(',')[0];
+                const firstName2 = g.firstName2;
+                const greeting = firstName2
+                    ? `${firstName1} and ${firstName2}`
+                    : firstName1;
+
                 const greetings = {
-                    formal: `Dear ${firstName},`,
-                    warm: `Dear ${firstName},`,
-                    casual: `Hi ${firstName},`,
-                    heartfelt: `Dear ${firstName},`,
-                    friendly: `Hi ${firstName},`,
-                    elegant: `Dearest ${firstName},`,
-                    playful: `Hey ${firstName},`,
-                    sincere: `Dear ${firstName},`
+                    formal: `Dear ${greeting},`,
+                    warm: `Dear ${greeting},`,
+                    casual: `Hi ${greeting},`,
+                    heartfelt: `Dear ${greeting},`,
+                    friendly: `Hi ${greeting},`,
+                    elegant: `Dearest ${greeting},`,
+                    playful: `Hey ${greeting},`,
+                    sincere: `Dear ${greeting},`
                 };
                 message += greetings[tone] + '\n\n';
 
@@ -1428,24 +1433,31 @@
             };
 
             const generateNoteWithAI = async (guest) => {
-                console.log('Generating AI note for:', guest.name);
+                const guestName = guest.firstName
+                    ? (guest.firstName2 ? `${guest.firstName} and ${guest.firstName2}` : guest.firstName)
+                    : guest.name?.split(' ')[0].split(',')[0];
+
+                console.log('Generating AI note for:', guestName);
 
                 try {
-                    const firstName = guest.name.split(' ')[0].split(',')[0];
+                    const firstName1 = guest.firstName || guest.name?.split(' ')[0].split(',')[0];
+                    const firstName2 = guest.firstName2;
+                    const greeting = firstName2 ? `${firstName1} and ${firstName2}` : firstName1;
+
                     const isRecipientEvent = ['birthday', 'graduation', 'baby_shower'].includes(details.occasion);
                     const eventType = occasions[details.occasion].replace(/[^\w\s]/g, '').trim();
 
                     const prompt = `🚨 CRITICAL INSTRUCTION 🚨
-You are writing thank you note #${guests.indexOf(guest) + 1}. Each note you write MUST be COMPLETELY DIFFERENT from the previous ones. If you wrote "Thank you for celebrating" in the last note, use a COMPLETELY DIFFERENT opening this time (e.g., "We're so grateful you joined us" or "${firstName}, having you at our ${eventType} meant everything" or "Your presence at our celebration was the best gift").
+You are writing thank you note #${guests.indexOf(guest) + 1}. Each note you write MUST be COMPLETELY DIFFERENT from the previous ones. If you wrote "Thank you for celebrating" in the last note, use a COMPLETELY DIFFERENT opening this time (e.g., "We're so grateful you joined us" or "${greeting}, having you at our ${eventType} meant everything" or "Your presence at our celebration was the best gift").
 
 NEVER repeat the same sentence structure, phrases, or patterns. Write as if each note is from a different person with a unique voice.
 
 RECIPIENT INFO:
-- Name: ${firstName}
+- Name: ${greeting}${firstName2 ? ' (couple)' : ''}
 - Gift: ${guest.gift || 'no physical gift, just their presence'}
 - Special moment: ${guest.memo || 'none mentioned'}
 - Relationship: ${guest.relationship || 'guest'}
-- Event: ${isRecipientEvent ? `${firstName}'s ${eventType} (use "your ${eventType}")` : `Our ${eventType} (use "our ${eventType}")`}
+- Event: ${isRecipientEvent ? `${firstName1}'s ${eventType} (use "your ${eventType}")` : `Our ${eventType} (use "our ${eventType}")`}
 - Tone: ${details.tone}
 - Sign from: ${details.names}
 
@@ -1460,10 +1472,10 @@ MANDATORY UNIQUENESS REQUIREMENTS:
 
 1. GREETING FORMAT - CRITICAL:
    Write the greeting on its own line, then start the message on the next line:
-   "${firstName}," (on its own line)
+   "${greeting}," (on its own line)
    Then the message starts below it.
 
-   Match tone: formal/warm/heartfelt/elegant/sincere: "Dear ${firstName}," / casual/friendly: "Hi ${firstName}," / playful: "Hey ${firstName},"
+   Match tone: formal/warm/heartfelt/elegant/sincere: "Dear ${greeting}," / casual/friendly: "Hi ${greeting}," / playful: "Hey ${greeting},"
 
 2. VARY YOUR OPENING - Never start with "Thank you for celebrating" twice:
    Examples: "We're so grateful you joined us" / "Your presence meant the world" / "Having you there made our day complete" / "What a joy it was to celebrate with you" / "We loved having you share our special day"
@@ -1512,7 +1524,7 @@ MANDATORY UNIQUENESS REQUIREMENTS:
    ${details.names}
 
 WRITE THE NOTE NOW - INCLUDE ALL PARTS:
-1. Greeting on its own line: "${firstName}," or "Dear ${firstName}," or "Hi ${firstName},"
+1. Greeting on its own line: "${greeting}," or "Dear ${greeting}," or "Hi ${greeting},"
 2. Message body (4-6 sentences) - start on next line after greeting
 3. Sign-off line: ${details.tone === 'formal' ? '"With sincere gratitude,"' :
      details.tone === 'warm' ? '"With love,"' :
