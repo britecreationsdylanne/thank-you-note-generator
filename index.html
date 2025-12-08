@@ -164,21 +164,23 @@
         }
         
         .btn-primary {
-            background: #008182;
+            background: #FF6B35;
             color: white;
             border: none;
-            padding: 1rem 3rem;
+            padding: 1rem 2.5rem;
             font-size: 1.125rem;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
             font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
         }
 
         .btn-primary:hover {
-            background: #31D7CA;
+            background: #E85A2A;
             transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
             box-shadow: 0 4px 12px rgba(0,129,130,0.3);
         }
         
@@ -1183,8 +1185,8 @@
                 let message = '';
 
                 // Greeting - handle single person or couple
-                const firstName1 = g.firstName || g.name?.split(' ')[0].split(',')[0];
-                const firstName2 = g.firstName2;
+                const firstName1 = (g.firstName || g.name?.split(' ')[0].split(',')[0] || '').trim();
+                const firstName2 = (g.firstName2 || '').trim();
                 const greeting = firstName2
                     ? `${firstName1} and ${firstName2}`
                     : firstName1;
@@ -1489,8 +1491,8 @@
                 console.log('Generating AI note for:', guestName);
 
                 try {
-                    const firstName1 = guest.firstName || guest.name?.split(' ')[0].split(',')[0];
-                    const firstName2 = guest.firstName2;
+                    const firstName1 = (guest.firstName || guest.name?.split(' ')[0].split(',')[0] || '').trim();
+                    const firstName2 = (guest.firstName2 || '').trim();
                     const greeting = firstName2 ? `${firstName1} and ${firstName2}` : firstName1;
 
                     const isRecipientEvent = ['birthday', 'graduation', 'baby_shower'].includes(details.occasion);
@@ -1636,7 +1638,7 @@ Make it completely unique from previous notes with natural flow!`;
                         setGenerationProgress({ current: i + 1, total: guests.length });
                         const content = await generateNoteWithAI(g);
                         generated.push({
-                            guestName: g.name,
+                            guestName: formatGuestName(g),
                             gift: g.gift,
                             content: content,
                             addr: g.addr,
@@ -1852,7 +1854,7 @@ Make it completely unique from previous notes with natural flow!`;
                     });
 
                     pdf.save('recipient-labels.pdf');
-                    alert(`Successfully generated ${withAddr.length} recipient labels!`);
+                    // Success - labels downloaded
                 } catch (error) {
                     console.error('Error generating recipient labels:', error);
                     alert('Error generating labels. Please try again.');
@@ -1913,7 +1915,7 @@ Make it completely unique from previous notes with natural flow!`;
                     }
 
                     pdf.save('return-labels.pdf');
-                    alert(`Successfully generated ${count} return address labels!`);
+                    // Success - labels downloaded
                 } catch (error) {
                     console.error('Error generating return labels:', error);
                     alert('Error generating labels. Please try again.');
@@ -1954,11 +1956,15 @@ Make it completely unique from previous notes with natural flow!`;
                 const pageWidth = 8.5;
                 const pageHeight = 11;
 
-                // Standard sticker sheet spacing
-                const horizontalSpacing = 2.6875; // Distance between circle centers horizontally
-                const verticalSpacing = 1.25;     // Distance between circle centers vertically
-                const marginX = 0.8125;            // Left margin
-                const marginY = 0.5;               // Top margin
+                // Avery 22807 actual specifications
+                // Horizontal: 8.5" page, 3 labels, each 1.5" diameter
+                // Total usable width: 8.5" - (2 * side margins)
+                // Left margin: 0.40625", Right margin: 0.40625"
+                // Space between centers: (8.5 - 0.8125) / 2 = 3.84375"
+                const horizontalSpacing = 2.75;    // Distance between circle centers
+                const verticalSpacing = 1.375;     // Distance between circle centers
+                const marginX = 0.96875;           // Left margin to first seal center
+                const marginY = 0.6875;            // Top margin to first seal center
                 
                 const count = notes.length * 5; // 5 seals per guest
                 const sealsPerPage = cols * rows; // 24 seals per page
@@ -2170,9 +2176,9 @@ Make it completely unique from previous notes with natural flow!`;
 
                         <div style={{textAlign: 'center', margin: '2rem 0'}}>
                             <button
-                                onClick={() => setCurrentPage('details')}
+                                onClick={() => setStep(1)}
                                 style={{
-                                    background: '#008182',
+                                    background: '#FF6B35',
                                     color: 'white',
                                     border: 'none',
                                     padding: '1rem 2.5rem',
@@ -2181,17 +2187,17 @@ Make it completely unique from previous notes with natural flow!`;
                                     cursor: 'pointer',
                                     fontWeight: '600',
                                     transition: 'all 0.3s',
-                                    boxShadow: '0 4px 12px rgba(0, 129, 130, 0.3)'
+                                    boxShadow: '0 4px 12px rgba(255, 107, 53, 0.3)'
                                 }}
                                 onMouseOver={(e) => {
-                                    e.target.style.background = '#31D7CA';
+                                    e.target.style.background = '#E85A2A';
                                     e.target.style.transform = 'translateY(-2px)';
-                                    e.target.style.boxShadow = '0 6px 16px rgba(0, 129, 130, 0.4)';
+                                    e.target.style.boxShadow = '0 6px 16px rgba(255, 107, 53, 0.4)';
                                 }}
                                 onMouseOut={(e) => {
-                                    e.target.style.background = '#008182';
+                                    e.target.style.background = '#FF6B35';
                                     e.target.style.transform = 'translateY(0)';
-                                    e.target.style.boxShadow = '0 4px 12px rgba(0, 129, 130, 0.3)';
+                                    e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 53, 0.3)';
                                 }}
                             >
                                 Get Started Free →
@@ -2413,7 +2419,7 @@ Make it completely unique from previous notes with natural flow!`;
                                 fontSize: '0.9rem',
                                 color: '#008182'
                             }}>
-                                💾 Your guest list is automatically saved as you add guests ({guests.length} added)
+                                Your guest list is automatically saved as you add guests ({guests.length} added)
                             </div>
                         )}
 
