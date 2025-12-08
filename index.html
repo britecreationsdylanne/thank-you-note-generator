@@ -1457,13 +1457,18 @@
             const formatGuestName = (guest) => {
                 // Handle new format (firstName/lastName)
                 if (guest.firstName && guest.lastName) {
-                    if (guest.firstName2 && guest.lastName2) {
-                        // Both guests have same last name
-                        if (guest.lastName === guest.lastName2) {
+                    if (guest.firstName2 && guest.firstName2.trim()) {
+                        // Couple format
+                        if (guest.lastName2 && guest.lastName === guest.lastName2) {
+                            // Same last name: "Jess and Mike Nicole"
+                            return `${guest.firstName} and ${guest.firstName2} ${guest.lastName}`;
+                        } else if (guest.lastName2) {
+                            // Different last names: "Jess Nicole and Mike Smith"
+                            return `${guest.firstName} ${guest.lastName} and ${guest.firstName2} ${guest.lastName2}`;
+                        } else {
+                            // Only first name for guest 2: "Jess and Mike Nicole"
                             return `${guest.firstName} and ${guest.firstName2} ${guest.lastName}`;
                         }
-                        // Different last names
-                        return `${guest.firstName} ${guest.lastName} and ${guest.firstName2} ${guest.lastName2}`;
                     }
                     return `${guest.firstName} ${guest.lastName}`;
                 }
@@ -1713,32 +1718,38 @@ Make it completely unique from previous notes with natural flow!`;
 
                         // Add pattern overlay if needed
                         if (details.design === 'floral') {
-                            const floralPattern = `
+                            cardElement.style.backgroundImage = `
                                 radial-gradient(circle at 10% 20%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 30% 15%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 25% 25%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 15% 30%, rgba(0,0,0,0.06) 2px, transparent 2px),
                                 radial-gradient(circle at 20% 35%, rgba(0,0,0,0.06) 2px, transparent 2px)
                             `;
-                            cardElement.style.background = `${floralPattern}, ${details.color}`;
                             cardElement.style.backgroundSize = '80px 80px';
+                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'dots') {
-                            cardElement.style.background = `radial-gradient(circle, rgba(0,0,0,0.08) 2px, transparent 2px) ${details.color}`;
+                            cardElement.style.backgroundImage = `radial-gradient(circle, rgba(0,0,0,0.08) 2px, transparent 2px)`;
                             cardElement.style.backgroundSize = '45px 45px';
+                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'stripes') {
-                            cardElement.style.background = `repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(0,0,0,0.05) 44px, rgba(0,0,0,0.05) 45px) ${details.color}`;
+                            cardElement.style.backgroundImage = `repeating-linear-gradient(90deg, transparent, transparent 44px, rgba(0,0,0,0.05) 44px, rgba(0,0,0,0.05) 45px)`;
+                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'hearts') {
-                            cardElement.style.background = `radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%), ${details.color}`;
+                            cardElement.style.backgroundImage = `radial-gradient(circle at 25% 25%, rgba(255,192,203,0.3) 5%, transparent 20%), radial-gradient(circle at 75% 75%, rgba(255,192,203,0.3) 5%, transparent 20%)`;
                             cardElement.style.backgroundSize = '60px 60px';
+                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'diamonds') {
-                            cardElement.style.background = `linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.05) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.05) 75%), ${details.color}`;
+                            cardElement.style.backgroundImage = `linear-gradient(45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(-45deg, rgba(0,0,0,0.05) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.05) 75%), linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.05) 75%)`;
                             cardElement.style.backgroundSize = '45px 45px';
                             cardElement.style.backgroundPosition = '0 0, 0 22.5px, 22.5px -22.5px, -22.5px 0px';
+                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'waves') {
-                            cardElement.style.background = `repeating-linear-gradient(0deg, transparent, transparent 45px, rgba(0,0,0,0.03) 45px, rgba(0,0,0,0.03) 46px) ${details.color}`;
+                            cardElement.style.backgroundImage = `repeating-linear-gradient(0deg, transparent, transparent 45px, rgba(0,0,0,0.03) 45px, rgba(0,0,0,0.03) 46px)`;
+                            cardElement.style.backgroundColor = details.color;
                         } else if (details.design === 'grid') {
-                            cardElement.style.background = `linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px), ${details.color}`;
+                            cardElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)`;
                             cardElement.style.backgroundSize = '30px 30px';
+                            cardElement.style.backgroundColor = details.color;
                         }
 
                         // Clean up content: remove horizontal rules, excessive line breaks
@@ -1948,13 +1959,16 @@ Make it completely unique from previous notes with natural flow!`;
                 const pageWidth = 8.5;
                 const pageHeight = 11;
 
-                // Avery 22807 precise specifications
-                // 3 columns x 8 rows of 1.5" diameter circles
-                // Standard measurements from Avery template
-                const horizontalSpacing = 2.8125;  // Distance between circle centers (2.8125")
-                const verticalSpacing = 1.375;     // Distance between circle centers (1.375")
-                const marginX = 0.9375;            // Left margin to first seal center (15/16")
-                const marginY = 0.6875;            // Top margin to first seal center (11/16")
+                // Avery 22807 actual specifications from template
+                // Page: 8.5" x 11", Labels: 1.5" circles, Layout: 3x8
+                // Left edge to first label center: 1.25"
+                // Top edge to first label center: 0.6875"
+                // Horizontal spacing between centers: 2.625"
+                // Vertical spacing between centers: 1.375"
+                const horizontalSpacing = 2.625;   // Distance between circle centers
+                const verticalSpacing = 1.375;     // Distance between circle centers
+                const marginX = 1.25;              // Left margin to first seal center
+                const marginY = 0.6875;            // Top margin to first seal center
                 
                 const count = notes.length * 5; // 5 seals per guest
                 const sealsPerPage = cols * rows; // 24 seals per page
@@ -2165,32 +2179,8 @@ Make it completely unique from previous notes with natural flow!`;
                         </div>
 
                         <div style={{textAlign: 'center', margin: '2rem 0'}}>
-                            <button
-                                onClick={() => setStep(1)}
-                                style={{
-                                    background: '#FF6B35',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '1rem 2.5rem',
-                                    fontSize: '1.125rem',
-                                    borderRadius: '12px',
-                                    cursor: 'pointer',
-                                    fontWeight: '600',
-                                    transition: 'all 0.3s',
-                                    boxShadow: '0 4px 12px rgba(255, 107, 53, 0.3)'
-                                }}
-                                onMouseOver={(e) => {
-                                    e.target.style.background = '#E85A2A';
-                                    e.target.style.transform = 'translateY(-2px)';
-                                    e.target.style.boxShadow = '0 6px 16px rgba(255, 107, 53, 0.4)';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.target.style.background = '#FF6B35';
-                                    e.target.style.transform = 'translateY(0)';
-                                    e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 53, 0.3)';
-                                }}
-                            >
-                                Get Started Free →
+                            <button className="btn-primary" onClick={() => setStep(2)}>
+                                Get Started - It's Free →
                             </button>
                         </div>
 
@@ -3258,7 +3248,7 @@ Make it completely unique from previous notes with natural flow!`;
                                 onMouseOver={(e) => e.target.style.background = '#E85A2A'}
                                 onMouseOut={(e) => e.target.style.background = '#FF6B35'}
                             >
-                                🔄 Start Over with New Event
+                                Start Over with New Event
                             </button>
                         </div>
                     </div>
