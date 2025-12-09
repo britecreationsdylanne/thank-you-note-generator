@@ -91,6 +91,10 @@
             font-size: 3rem;
             margin-bottom: 1.5rem;
         }
+
+        .blue-icon {
+            filter: invert(37%) sepia(18%) saturate(1091%) hue-rotate(162deg) brightness(91%) contrast(88%);
+        }
         
         .feature-card h3 {
             font-size: 1.5rem;
@@ -523,6 +527,7 @@
         .download-icon {
             font-size: 2.5rem;
             margin-bottom: 1rem;
+            filter: invert(37%) sepia(18%) saturate(1091%) hue-rotate(162deg) brightness(91%) contrast(88%);
         }
         
         .download-card h4 {
@@ -2370,17 +2375,17 @@ Make it completely unique from previous notes with natural flow!`;
 
                         <div className="features-grid">
                             <div className="feature-card">
-                                <div className="feature-icon" style={{color: '#466F88'}}>✉</div>
+                                <div className="feature-icon blue-icon">💌</div>
                                 <h3>Beautiful Cards</h3>
                                 <p>5.5" x 4.25" postcards with custom designs</p>
                             </div>
                             <div className="feature-card">
-                                <div className="feature-icon" style={{color: '#466F88'}}>⬝</div>
+                                <div className="feature-icon blue-icon">🏷️</div>
                                 <h3>Address Labels</h3>
                                 <p>Print-ready Avery 5160 format</p>
                             </div>
                             <div className="feature-card">
-                                <div className="feature-icon" style={{color: '#466F88'}}>✦</div>
+                                <div className="feature-icon blue-icon">💫</div>
                                 <h3>Custom Seals</h3>
                                 <p>8 design styles with your initials</p>
                             </div>
@@ -3278,12 +3283,12 @@ Make it completely unique from previous notes with natural flow!`;
                             </div>
                         </div>
 
-                        <div className="card" style={{marginTop: '2rem', background: 'linear-gradient(135deg, #E1E7EF 0%, #F4F7FC 100%)'}}>
-                            <h3 style={{color: '#008182', marginBottom: '1rem', textAlign: 'center'}}>📋 How to Use Your Downloads</h3>
+                        <div className="card" style={{marginTop: '2rem', background: '#F4F7FC'}}>
+                            <h3 style={{color: '#008182', marginBottom: '1rem', textAlign: 'center'}}><span className="blue-icon">📋</span> How to Use Your Downloads</h3>
                             <div style={{display: 'grid', gap: '1rem'}}>
                                 <div style={{padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #E0E0E0'}}>
                                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem'}}>
-                                        <div style={{fontSize: '1.5rem', flexShrink: 0}}>💌</div>
+                                        <div style={{fontSize: '1.5rem', flexShrink: 0}} className="blue-icon">💌</div>
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Cards</strong>
                                             <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '0.75rem'}}>
@@ -3312,7 +3317,7 @@ Make it completely unique from previous notes with natural flow!`;
 
                                 <div style={{padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #E0E0E0'}}>
                                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem'}}>
-                                        <div style={{fontSize: '1.5rem', flexShrink: 0}}>🏷️</div>
+                                        <div style={{fontSize: '1.5rem', flexShrink: 0}} className="blue-icon">🏷️</div>
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Recipient Labels</strong>
                                             <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '0.75rem'}}>
@@ -3341,7 +3346,7 @@ Make it completely unique from previous notes with natural flow!`;
 
                                 <div style={{padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #E0E0E0'}}>
                                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem'}}>
-                                        <div style={{fontSize: '1.5rem', flexShrink: 0}}>📮</div>
+                                        <div style={{fontSize: '1.5rem', flexShrink: 0}} className="blue-icon">📮</div>
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Return Labels</strong>
                                             <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '0.5rem'}}>
@@ -3373,7 +3378,7 @@ Make it completely unique from previous notes with natural flow!`;
 
                                 <div style={{padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #E0E0E0'}}>
                                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem'}}>
-                                        <div style={{fontSize: '1.5rem', flexShrink: 0}}>💫</div>
+                                        <div style={{fontSize: '1.5rem', flexShrink: 0}} className="blue-icon">💫</div>
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Seals</strong>
                                             <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '0.75rem'}}>
