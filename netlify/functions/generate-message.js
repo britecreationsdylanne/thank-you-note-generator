@@ -30,7 +30,8 @@ exports.handler = async (event) => {
       };
     }
 
-    console.log('✅ API key found, calling Claude API...');
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    console.log('✅ API key found, length:', apiKey.length, 'starts with:', apiKey.substring(0, 10) + '...');
     console.log('Prompt length:', prompt.length, 'characters');
 
     const postData = JSON.stringify({
@@ -42,6 +43,8 @@ exports.handler = async (event) => {
       }]
     });
 
+    console.log('Calling Anthropic API at api.anthropic.com/v1/messages');
+
     const options = {
       hostname: 'api.anthropic.com',
       port: 443,
@@ -50,7 +53,7 @@ exports.handler = async (event) => {
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(postData),
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
       timeout: 30000
