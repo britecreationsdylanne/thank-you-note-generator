@@ -1613,7 +1613,8 @@ WRITE THE NOTE NOW - INCLUDE ALL PARTS:
 
 Make it completely unique from previous notes with natural flow!`;
 
-                    console.log('Calling Claude API via Netlify function for:', firstName);
+                    console.log('🔵 Calling Claude API for:', guestName);
+                    console.log('Prompt preview:', prompt.substring(0, 200) + '...');
 
                     // Call our secure Netlify function instead of Claude API directly
                     const response = await fetch('/.netlify/functions/generate-message', {
@@ -1626,23 +1627,26 @@ Make it completely unique from previous notes with natural flow!`;
                         })
                     });
 
+                    console.log('📡 Response status:', response.status, response.statusText);
+
                     if (!response.ok) {
                         const errorText = await response.text();
-                        console.error('❌ Claude API HTTP ERROR:');
-                        console.error('Status:', response.status, response.statusText);
-                        console.error('Response:', errorText);
+                        console.error('❌ API ERROR - Status:', response.status);
+                        console.error('❌ API ERROR - Body:', errorText);
                         throw new Error(`API returned ${response.status}: ${errorText}`);
                     }
 
                     const data = await response.json();
+                    console.log('📦 Received data structure:', Object.keys(data));
 
                     if (!data.content || !data.content[0] || !data.content[0].text) {
-                        console.error('❌ Invalid API response structure:', data);
+                        console.error('❌ Invalid response structure. Got:', data);
                         throw new Error('Invalid API response format');
                     }
 
                     const generatedNote = data.content[0].text.trim();
-                    console.log('✅ Generated unique note for', guestName, '- length:', generatedNote.length);
+                    console.log('✅ SUCCESS! Generated', generatedNote.length, 'chars for', guestName);
+                    console.log('📝 Note preview:', generatedNote.substring(0, 100) + '...');
                     return generatedNote;
                 } catch (error) {
                     console.error('❌ Error generating AI note for', guestName, ':', error);
