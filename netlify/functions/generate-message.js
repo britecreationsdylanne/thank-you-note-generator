@@ -1,6 +1,6 @@
-const https = require('https');
-
+// Netlify Function to securely call Claude API
 exports.handler = async (event) => {
+  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -20,75 +20,35 @@ exports.handler = async (event) => {
       };
     }
 
-    // Check if API key exists
-    if (!process.env.ANTHROPIC_API_KEY) {
-      console.error('❌ ANTHROPIC_API_KEY environment variable is not set!');
-      return {
-        statusCode: 500,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured in Netlify environment' })
-      };
-    }
-
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    console.log('✅ API key found, length:', apiKey.length, 'starts with:', apiKey.substring(0, 10) + '...');
-    console.log('Prompt length:', prompt.length, 'characters');
-
-    const postData = JSON.stringify({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: 500,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
-    });
-
-    console.log('Calling Anthropic API at api.anthropic.com/v1/messages');
-
-    const options = {
-      hostname: 'api.anthropic.com',
-      port: 443,
-      path: '/v1/messages',
+    // Call Claude API with the API key from environment variable
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData),
-        'x-api-key': apiKey,
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
       },
-      timeout: 30000
-    };
-
-    const data = await new Promise((resolve, reject) => {
-      const req = https.request(options, (res) => {
-        let body = '';
-        res.on('data', (chunk) => body += chunk);
-        res.on('end', () => {
-          try {
-            if (res.statusCode !== 200) {
-              console.error('❌ Claude API HTTP error:', res.statusCode);
-              console.error('Response body:', body);
-              reject(new Error(`HTTP ${res.statusCode}: ${body}`));
-            } else {
-              const parsed = JSON.parse(body);
-              console.log('✅ Claude API success! Generated', parsed.content[0].text.length, 'characters');
-              resolve(parsed);
-            }
-          } catch (e) {
-            console.error('❌ Error parsing response:', e);
-            reject(e);
-          }
-        });
-      });
-
-      req.on('error', reject);
-      req.on('timeout', () => {
-        req.destroy();
-        reject(new Error('Request timeout'));
-      });
-      req.write(postData);
-      req.end();
+      body: JSON.stringify({
+        model: 'claude-3-5-haiku-20241022',
+        max_tokens: 500,
+        messages: [{
+          role: 'user',
+          content: prompt
+        }]
+      })
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Claude API error:', errorText);
+      return {
+        statusCode: response.status,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Failed to generate message' })
+      };
+    }
+
+    const data = await response.json();
 
     return {
       statusCode: 200,
@@ -100,7 +60,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: error.message || 'Internal server error' })
+      body: JSON.stringify({ error: 'Internal server error' })
     };
   }
 };
