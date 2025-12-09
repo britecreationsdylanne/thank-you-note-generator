@@ -1162,6 +1162,10 @@
                 }
             }, [step]);
 
+            useEffect(() => {
+                console.log('🔄 Step changed to:', step);
+            }, [step]);
+
             const generateNote = (g) => {
                 const occ = occasions[details.occasion].replace(/[^\w\s]/g, '').trim().toLowerCase();
                 const tone = details.tone || 'warm';
@@ -1721,8 +1725,10 @@ Make it completely unique from previous notes with natural flow!`;
                     }
 
                     setNotes(generated);
+                    console.log('✅ All notes generated, moving to step 5. Notes:', generated.length);
                     setIsGenerating(false);
                     setStep(5); // Go to review/edit messages
+                    console.log('📍 Step set to 5');
                 } catch (error) {
                     alert('Error generating notes. Please try again.');
                     console.error(error);
@@ -3107,6 +3113,7 @@ Make it completely unique from previous notes with natural flow!`;
 
             // STEP 5: Review and Edit Messages
             if (step === 5) {
+                console.log('🔵 Rendering step 5 - Review Messages. Notes count:', notes.length);
                 const handleEditMessage = (index) => {
                     setEditingNoteIndex(index);
                 };
@@ -3211,7 +3218,11 @@ Make it completely unique from previous notes with natural flow!`;
                         <button
                             className="btn-primary"
                             style={{width: '100%', marginTop: '1.5rem'}}
-                            onClick={() => setStep(6)}
+                            onClick={() => {
+                                console.log('🔘 Continue to Download clicked - setting step to 6');
+                                setStep(6);
+                                console.log('📍 Step set to 6');
+                            }}
                         >
                             Continue to Download →
                         </button>
@@ -3221,6 +3232,7 @@ Make it completely unique from previous notes with natural flow!`;
 
             // STEP 6: Download
             if (step === 6) {
+                console.log('🟢 Rendering step 6 - Download page. Notes count:', notes.length);
                 return (
                     <div className="container">
                         <h2 className="page-title">Ready! 🎉</h2>
