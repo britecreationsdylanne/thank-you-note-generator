@@ -73,7 +73,7 @@
         }
         
         .feature-card {
-            background: linear-gradient(135deg, #E1E7EF 0%, #F4F7FC 100%);
+            background: #F4F7FC;
             border-radius: 16px;
             padding: 2.5rem 2rem;
             text-align: center;
@@ -91,6 +91,10 @@
             font-size: 3rem;
             margin-bottom: 1.5rem;
         }
+
+        .blue-icon {
+            filter: invert(37%) sepia(18%) saturate(1091%) hue-rotate(162deg) brightness(91%) contrast(88%);
+        }
         
         .feature-card h3 {
             font-size: 1.5rem;
@@ -104,7 +108,7 @@
         }
         
         .how-it-works {
-            background: linear-gradient(135deg, #008182 0%, #31D7CA 100%);
+            background: #008182;
             border-radius: 24px;
             padding: 3rem 2rem;
             max-width: 1200px;
@@ -414,17 +418,15 @@
         }
 
         .seal-ornate {
-            border: 3px solid currentColor;
-        }
-        .seal-ornate::before {
-            content: '• • • • • • • •';
-            position: absolute;
-            font-size: 0.5rem;
-            top: 4px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            letter-spacing: 4px;
+            border: 2px solid currentColor;
+            background: radial-gradient(circle at 30% 30%, currentColor 2px, transparent 2px),
+                        radial-gradient(circle at 70% 30%, currentColor 2px, transparent 2px),
+                        radial-gradient(circle at 30% 70%, currentColor 2px, transparent 2px),
+                        radial-gradient(circle at 70% 70%, currentColor 2px, transparent 2px),
+                        radial-gradient(circle at 50% 15%, currentColor 2px, transparent 2px),
+                        radial-gradient(circle at 50% 85%, currentColor 2px, transparent 2px),
+                        radial-gradient(circle at 15% 50%, currentColor 2px, transparent 2px),
+                        radial-gradient(circle at 85% 50%, currentColor 2px, transparent 2px);
         }
 
         .seal-scalloped {
@@ -515,6 +517,7 @@
         .download-icon {
             font-size: 2.5rem;
             margin-bottom: 1rem;
+            filter: invert(37%) sepia(18%) saturate(1091%) hue-rotate(162deg) brightness(91%) contrast(88%);
         }
         
         .download-card h4 {
@@ -1759,12 +1762,12 @@ Make it completely unique from previous notes with natural flow!`;
                         const cardElement = document.createElement('div');
                         cardElement.style.width = '637px'; // 4.25 inches * 150 DPI
                         cardElement.style.height = '825px'; // 5.5 inches * 150 DPI
-                        cardElement.style.padding = '50px';
+                        cardElement.style.padding = '45px 45px 50px 45px'; // Extra bottom padding for signature
                         cardElement.style.boxSizing = 'border-box';
                         cardElement.style.fontSize = '18px';
                         cardElement.style.color = '#282828';
                         cardElement.style.whiteSpace = 'pre-line';
-                        cardElement.style.lineHeight = '2.0';
+                        cardElement.style.lineHeight = '1.9';
                         cardElement.style.position = 'relative';
 
                         // Set font family with proper web font loading
@@ -2320,7 +2323,7 @@ Make it completely unique from previous notes with natural flow!`;
                                 display: 'inline-block'
                             }}>
                                 <div style={{fontSize: '1.25rem', fontWeight: '600', color: '#008182', marginBottom: '0.5rem'}}>
-                                    ✨ Always Free to Use
+                                    Always Free to Use
                                 </div>
                                 <div style={{fontSize: '1rem', color: '#666'}}>
                                     Save $200-500 vs. professional stationery services
@@ -2359,17 +2362,17 @@ Make it completely unique from previous notes with natural flow!`;
 
                         <div className="features-grid">
                             <div className="feature-card">
-                                <div className="feature-icon">💌</div>
+                                <div className="feature-icon blue-icon">💌</div>
                                 <h3>Beautiful Cards</h3>
                                 <p>5.5" x 4.25" postcards with custom designs</p>
                             </div>
                             <div className="feature-card">
-                                <div className="feature-icon">🏷️</div>
+                                <div className="feature-icon blue-icon">🏷️</div>
                                 <h3>Address Labels</h3>
                                 <p>Print-ready Avery 5160 format</p>
                             </div>
                             <div className="feature-card">
-                                <div className="feature-icon">💫</div>
+                                <div className="feature-icon blue-icon">💫</div>
                                 <h3>Custom Seals</h3>
                                 <p>8 design styles with your initials</p>
                             </div>
@@ -2514,7 +2517,7 @@ Make it completely unique from previous notes with natural flow!`;
                                     maxLength="4"
                                 />
                                 <p style={{fontSize: '0.85rem', color: '#666', marginTop: '0.5rem'}}>
-                                    These will appear on your decorative envelope seals 💫
+                                    💡 Most people use initials for their envelope seals
                                 </p>
                             </div>
 
@@ -2890,8 +2893,12 @@ Make it completely unique from previous notes with natural flow!`;
                                         </div>
                                     </div>
 
+                                    <p style={{fontSize: '0.9rem', color: '#666', marginBottom: '0.75rem', textAlign: 'center'}}>
+                                        💡 Hit submit for each guest
+                                    </p>
+
                                     <button className="btn-secondary" onClick={addGuest}>
-                                        + Add Guest
+                                        Submit
                                     </button>
                                 </div>
 
@@ -3048,7 +3055,6 @@ Make it completely unique from previous notes with natural flow!`;
                                     borderRadius: '12px',
                                     marginBottom: '1rem'
                                 }}>
-                                    <div style={{fontSize: '1.5rem', marginBottom: '0.5rem'}}>✨</div>
                                     <div style={{fontSize: '1.1rem', fontWeight: '600', color: '#008182', marginBottom: '0.5rem'}}>
                                         Generating Personalized Messages...
                                     </div>
@@ -3184,7 +3190,7 @@ Make it completely unique from previous notes with natural flow!`;
                                             </div>
                                         </div>
                                     ) : (
-                                        <p style={{color: '#666', lineHeight: '1.6', margin: 0}}>{note.content}</p>
+                                        <p style={{color: '#666', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-wrap'}}>{note.content}</p>
                                     )}
                                 </div>
                             ))}
@@ -3207,6 +3213,16 @@ Make it completely unique from previous notes with natural flow!`;
                     <div className="container">
                         <h2 className="page-title">Ready! 🎉</h2>
                         <p className="page-subtitle">{notes.length} personalized cards</p>
+
+                        <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+                            <button
+                                className="btn-secondary"
+                                onClick={() => setStep(4)}
+                                style={{padding: '0.75rem 1.5rem', fontSize: '0.95rem'}}
+                            >
+                                ← Change Design or Color
+                            </button>
+                        </div>
 
                         <div className="download-grid">
                             <div className="download-card">
@@ -3231,12 +3247,28 @@ Make it completely unique from previous notes with natural flow!`;
                             </div>
                         </div>
 
-                        <div className="card" style={{marginTop: '2rem', background: 'linear-gradient(135deg, #E1E7EF 0%, #F4F7FC 100%)'}}>
-                            <h3 style={{color: '#008182', marginBottom: '1rem', textAlign: 'center'}}>📋 How to Use Your Downloads</h3>
+                        <div className="card" style={{marginTop: '2rem', background: '#008182'}}>
+                            <h3 style={{color: 'white', marginBottom: '0.5rem', textAlign: 'center'}}>How to Use Your Downloads</h3>
+                            <p style={{color: 'rgba(255, 255, 255, 0.95)', textAlign: 'center', marginBottom: '1.5rem', fontSize: '0.95rem'}}>Click each product below to shop on Amazon</p>
+
                             <div style={{display: 'grid', gap: '1rem'}}>
-                                <div style={{padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #E0E0E0'}}>
+                                <a
+                                    href="https://www.amazon.com/Avery-Printable-Invitation-Printers-Postcards/dp/B001PMC4TW"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        padding: '1rem',
+                                        background: 'white',
+                                        borderRadius: '8px',
+                                        textDecoration: 'none',
+                                        display: 'block',
+                                        transition: 'transform 0.2s'
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
                                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem'}}>
-                                        <div style={{fontSize: '1.5rem', flexShrink: 0}}>💌</div>
+                                        <div style={{fontSize: '1.5rem', flexShrink: 0}} className="blue-icon">💌</div>
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Cards</strong>
                                             <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5'}}>
@@ -3244,11 +3276,25 @@ Make it completely unique from previous notes with natural flow!`;
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
 
-                                <div style={{padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #E0E0E0'}}>
+                                <a
+                                    href="https://www.amazon.com/Avery-Address-Labels-Printers-5160/dp/B00004Z5SM"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        padding: '1rem',
+                                        background: 'white',
+                                        borderRadius: '8px',
+                                        textDecoration: 'none',
+                                        display: 'block',
+                                        transition: 'transform 0.2s'
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
                                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem'}}>
-                                        <div style={{fontSize: '1.5rem', flexShrink: 0}}>🏷️</div>
+                                        <div style={{fontSize: '1.5rem', flexShrink: 0}} className="blue-icon">🏷️</div>
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Recipient Labels</strong>
                                             <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5'}}>
@@ -3256,151 +3302,72 @@ Make it completely unique from previous notes with natural flow!`;
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
 
-                                <div style={{padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #E0E0E0'}}>
+                                <a
+                                    href="https://www.amazon.com/Avery-Address-Labels-Printers-5160/dp/B00004Z5SM"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        padding: '1rem',
+                                        background: 'white',
+                                        borderRadius: '8px',
+                                        textDecoration: 'none',
+                                        display: 'block',
+                                        transition: 'transform 0.2s'
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
                                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem'}}>
-                                        <div style={{fontSize: '1.5rem', flexShrink: 0}}>📮</div>
+                                        <div style={{fontSize: '1.5rem', flexShrink: 0}} className="blue-icon">📮</div>
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Return Labels</strong>
-                                            <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5'}}>
+                                            <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '0.5rem'}}>
                                                 Print on Avery 5160 label sheets. These go on the back flap of your envelopes (top left corner). They show your return address so cards can come back if undeliverable.
+                                            </p>
+                                            <p style={{margin: 0, color: '#008182', fontSize: '0.85rem', fontWeight: '600'}}>
+                                                💡 Use the same Avery 5160 sheets for both recipient and return labels!
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
 
-                                <div style={{padding: '1rem', background: 'white', borderRadius: '8px', border: '1px solid #E0E0E0'}}>
+                                <a
+                                    href="https://www.amazon.com/Avery-Printable-Stickers-Permanent-Adhesive/dp/B004HB6NHU"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        padding: '1rem',
+                                        background: 'white',
+                                        borderRadius: '8px',
+                                        textDecoration: 'none',
+                                        display: 'block',
+                                        transition: 'transform 0.2s'
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
                                     <div style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem'}}>
-                                        <div style={{fontSize: '1.5rem', flexShrink: 0}}>💫</div>
+                                        <div style={{fontSize: '1.5rem', flexShrink: 0}} className="blue-icon">💫</div>
                                         <div>
                                             <strong style={{color: '#008182', display: 'block', marginBottom: '0.25rem'}}>Seals</strong>
                                             <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5'}}>
-                                                Print on 1.5" round sticker label sheets. Peel and stick to the back flap of your envelopes after sealing them. This adds a beautiful finishing touch!
+                                                Print on Avery 8293 (1.5" round sticker label sheets). Peel and stick to the back flap of your envelopes after sealing them. This adds a beautiful finishing touch!
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             </div>
 
-                            <div style={{marginTop: '1.5rem', padding: '1rem', background: 'rgba(45, 88, 83, 0.05)', borderRadius: '8px', borderLeft: '3px solid #008182'}}>
-                                <strong style={{color: '#008182', display: 'block', marginBottom: '0.5rem'}}>💡 Pro Tip</strong>
-                                <p style={{margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.5'}}>
+                            <div style={{marginTop: '1.5rem', padding: '1rem', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '8px', borderLeft: '3px solid white'}}>
+                                <strong style={{color: 'white', display: 'block', marginBottom: '0.5rem'}}>💡 Pro Tip</strong>
+                                <p style={{margin: 0, color: 'rgba(255, 255, 255, 0.95)', fontSize: '0.9rem', lineHeight: '1.5'}}>
                                     If you don't have a printer at home, save the PDFs to a USB drive and take them to your local print shop (Staples, FedEx Office, or UPS Store). They can print everything for you!
                                 </p>
                             </div>
                         </div>
 
-                        <div className="card" style={{marginTop: '2rem', background: 'linear-gradient(135deg, #008182 0%, #31D7CA 100%)', border: 'none', boxShadow: '0 4px 16px rgba(0,129,130,0.2)'}}>
-                            <h3 style={{color: 'white', marginBottom: '1rem'}}>📦 Required Supplies</h3>
-                            <p style={{color: 'rgba(255, 255, 255, 0.95)', marginBottom: '1.5rem', fontSize: '0.9rem'}}>Shop on Amazon:</p>
-
-                            <div style={{display: 'grid', gap: '0.75rem'}}>
-                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0'}}>
-                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                                        <span style={{fontSize: '1.25rem'}}>💌</span>
-                                        <div>
-                                            <strong style={{color: 'white'}}>Avery 5389 Postcards</strong>
-                                            <span style={{color: 'rgba(255, 255, 255, 0.8)', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— 4 per sheet, 5.5" x 4.25"</span>
-                                        </div>
-                                    </div>
-                                    <a
-                                        href="https://www.amazon.com/Avery-Printable-Invitation-Printers-Postcards/dp/B001PMC4TW"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            background: 'white',
-                                            color: '#008182',
-                                            padding: '0.4rem 0.9rem',
-                                            borderRadius: '6px',
-                                            textDecoration: 'none',
-                                            fontWeight: '600',
-                                            fontSize: '0.875rem'
-                                        }}
-                                    >
-                                        Shop →
-                                    </a>
-                                </div>
-
-                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0'}}>
-                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                                        <span style={{fontSize: '1.25rem'}}>🏷️</span>
-                                        <div>
-                                            <strong style={{color: 'white'}}>Address Labels (Avery 5160)</strong>
-                                            <span style={{color: 'rgba(255, 255, 255, 0.8)', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— 1" x 2⅝" labels</span>
-                                        </div>
-                                    </div>
-                                    <a
-                                        href="https://www.amazon.com/Avery-Address-Inkjet-Printers-Sheets/dp/B00004Z5SM"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            background: 'white',
-                                            color: '#008182',
-                                            padding: '0.4rem 0.9rem',
-                                            borderRadius: '6px',
-                                            textDecoration: 'none',
-                                            fontWeight: '600',
-                                            fontSize: '0.875rem'
-                                        }}
-                                    >
-                                        Shop →
-                                    </a>
-                                </div>
-
-                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0'}}>
-                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                                        <span style={{fontSize: '1.25rem'}}>💫</span>
-                                        <div>
-                                            <strong style={{color: 'white'}}>Round Sticker Labels (1.5")</strong>
-                                            <span style={{color: 'rgba(255, 255, 255, 0.8)', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— for envelope seals</span>
-                                        </div>
-                                    </div>
-                                    <a
-                                        href="https://www.amazon.com/s?k=1.5+inch+round+sticker+labels+printable+white"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            background: 'white',
-                                            color: '#008182',
-                                            padding: '0.4rem 0.9rem',
-                                            borderRadius: '6px',
-                                            textDecoration: 'none',
-                                            fontWeight: '600',
-                                            fontSize: '0.875rem'
-                                        }}
-                                    >
-                                        Shop →
-                                    </a>
-                                </div>
-
-                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0'}}>
-                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                                        <span style={{fontSize: '1.25rem'}}>✉️</span>
-                                        <div>
-                                            <strong style={{color: 'white'}}>A2 Envelopes (4⅜" x 5¾")</strong>
-                                            <span style={{color: 'rgba(255, 255, 255, 0.8)', marginLeft: '0.5rem', fontSize: '0.875rem'}}>— fits postcards</span>
-                                        </div>
-                                    </div>
-                                    <a
-                                        href="https://www.amazon.com/s?k=a2+envelopes+4.375+x+5.75+white"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                            background: 'white',
-                                            color: '#008182',
-                                            padding: '0.4rem 0.9rem',
-                                            borderRadius: '6px',
-                                            textDecoration: 'none',
-                                            fontWeight: '600',
-                                            fontSize: '0.875rem'
-                                        }}
-                                    >
-                                        Shop →
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
 
                         <div className="card" style={{marginTop: '2rem', textAlign: 'center'}}>
                             <h4 style={{color: '#008182', marginBottom: '1rem'}}>🖨️ Find Nearby Print Shops</h4>
