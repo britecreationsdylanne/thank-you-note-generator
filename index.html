@@ -194,9 +194,9 @@
         }
         
         .btn-secondary {
-            background: white;
-            color: #008182;
-            border: 2px solid #31D7CA;
+            background: #008182;
+            color: white;
+            border: 2px solid #008182;
             padding: 0.75rem 2rem;
             font-size: 1rem;
             border-radius: 10px;
@@ -206,8 +206,8 @@
         }
 
         .btn-secondary:hover {
-            background: #F4F7FC;
-            border-color: #008182;
+            background: #006b6c;
+            border-color: #006b6c;
         }
         
         .container {
@@ -2826,9 +2826,6 @@ Make it completely unique from previous notes with natural flow!`;
                                             rows="2"
                                             placeholder="e.g., 'heartfelt toast' or 'traveling so far to be there'"
                                         />
-                                        <p style={{fontSize: '0.875rem', color: '#666', marginTop: '0.5rem'}}>
-                                            Will appear as "Your [special moment] was such a special moment."
-                                        </p>
                                     </div>
 
                                     <div className="form-section">
@@ -2838,9 +2835,6 @@ Make it completely unique from previous notes with natural flow!`;
                                             onChange={(e) => setCurrentGuest({...currentGuest, relationship: e.target.value})}
                                             placeholder="e.g., friend, cousin, aunt, colleague"
                                         />
-                                        <p style={{fontSize: '0.875rem', color: '#666', marginTop: '0.5rem'}}>
-                                            Will add "You're such a wonderful [relationship]."
-                                        </p>
                                     </div>
 
                                     <div className="form-section" style={{position: 'relative'}}>
@@ -3220,7 +3214,7 @@ Make it completely unique from previous notes with natural flow!`;
                                 onClick={() => setStep(4)}
                                 style={{padding: '0.75rem 1.5rem', fontSize: '0.95rem'}}
                             >
-                                ← Edit colors or design
+                                Edit colors or design
                             </button>
                         </div>
 
@@ -3396,7 +3390,7 @@ Make it completely unique from previous notes with natural flow!`;
 
 
                         <div className="card" style={{marginTop: '2rem', textAlign: 'center'}}>
-                            <h4 style={{color: '#008182', marginBottom: '1rem'}}>🖨️ Find Nearby Print Shops</h4>
+                            <h4 style={{color: '#008182', marginBottom: '1rem'}}>Find Nearby Print Shops</h4>
                             <p style={{color: '#666', marginBottom: '1rem', fontSize: '0.9rem'}}>
                                 Search for print shops near your location
                             </p>
