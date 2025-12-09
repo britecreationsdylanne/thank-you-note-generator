@@ -1759,12 +1759,12 @@ Make it completely unique from previous notes with natural flow!`;
                         const cardElement = document.createElement('div');
                         cardElement.style.width = '637px'; // 4.25 inches * 150 DPI
                         cardElement.style.height = '825px'; // 5.5 inches * 150 DPI
-                        cardElement.style.padding = '60px';
+                        cardElement.style.padding = '50px';
                         cardElement.style.boxSizing = 'border-box';
                         cardElement.style.fontSize = '18px';
                         cardElement.style.color = '#282828';
                         cardElement.style.whiteSpace = 'pre-line';
-                        cardElement.style.lineHeight = '1.8';
+                        cardElement.style.lineHeight = '2.0';
                         cardElement.style.position = 'relative';
 
                         // Set font family with proper web font loading
@@ -1886,12 +1886,16 @@ Make it completely unique from previous notes with natural flow!`;
                                 patternCanvas.height = 825;
                                 ctx.fillStyle = details.color;
                                 ctx.fillRect(0, 0, 637, 825);
-                                ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+                                ctx.strokeStyle = 'rgba(0,0,0,0.15)';
                                 ctx.lineWidth = 2;
-                                for (let y = 0; y < 825; y += 46) {
+                                // Draw actual wave curves using sine waves
+                                for (let y = 20; y < 825; y += 40) {
                                     ctx.beginPath();
                                     ctx.moveTo(0, y);
-                                    ctx.lineTo(637, y);
+                                    for (let x = 0; x < 637; x += 5) {
+                                        const waveY = y + Math.sin(x / 30) * 10;
+                                        ctx.lineTo(x, waveY);
+                                    }
                                     ctx.stroke();
                                 }
                             } else if (details.design === 'hearts') {
@@ -1933,18 +1937,18 @@ Make it completely unique from previous notes with natural flow!`;
 
                         // Dynamic font sizing based on content length
                         const contentLength = cleanedContent.length;
-                        let fontSize = 20; // Default (increased from 18)
+                        let fontSize = 24; // Default - much larger
 
                         if (contentLength < 150) {
-                            fontSize = 26; // Short messages get larger text
+                            fontSize = 32; // Short messages get larger text
                         } else if (contentLength < 250) {
-                            fontSize = 24; // Medium messages
+                            fontSize = 28; // Medium messages
                         } else if (contentLength < 350) {
-                            fontSize = 20; // Normal messages
+                            fontSize = 24; // Normal messages
                         } else if (contentLength < 450) {
-                            fontSize = 18; // Longer messages
+                            fontSize = 22; // Longer messages
                         } else {
-                            fontSize = 16; // Very long messages
+                            fontSize = 20; // Very long messages
                         }
 
                         cardElement.style.fontSize = `${fontSize}px`;
