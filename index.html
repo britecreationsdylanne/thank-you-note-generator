@@ -1759,12 +1759,12 @@ Make it completely unique from previous notes with natural flow!`;
                         const cardElement = document.createElement('div');
                         cardElement.style.width = '637px'; // 4.25 inches * 150 DPI
                         cardElement.style.height = '825px'; // 5.5 inches * 150 DPI
-                        cardElement.style.padding = '75px';
+                        cardElement.style.padding = '60px';
                         cardElement.style.boxSizing = 'border-box';
                         cardElement.style.fontSize = '18px';
                         cardElement.style.color = '#282828';
                         cardElement.style.whiteSpace = 'pre-line';
-                        cardElement.style.lineHeight = '1.6';
+                        cardElement.style.lineHeight = '1.8';
                         cardElement.style.position = 'relative';
 
                         // Set font family with proper web font loading
@@ -1933,18 +1933,18 @@ Make it completely unique from previous notes with natural flow!`;
 
                         // Dynamic font sizing based on content length
                         const contentLength = cleanedContent.length;
-                        let fontSize = 18; // Default
+                        let fontSize = 20; // Default (increased from 18)
 
                         if (contentLength < 150) {
-                            fontSize = 22; // Short messages get larger text
+                            fontSize = 26; // Short messages get larger text
                         } else if (contentLength < 250) {
-                            fontSize = 20; // Medium messages
+                            fontSize = 24; // Medium messages
                         } else if (contentLength < 350) {
-                            fontSize = 18; // Normal messages
+                            fontSize = 20; // Normal messages
                         } else if (contentLength < 450) {
-                            fontSize = 16; // Longer messages
+                            fontSize = 18; // Longer messages
                         } else {
-                            fontSize = 14; // Very long messages
+                            fontSize = 16; // Very long messages
                         }
 
                         cardElement.style.fontSize = `${fontSize}px`;
