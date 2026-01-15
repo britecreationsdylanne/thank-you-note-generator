@@ -1,10 +1,38 @@
 // Netlify Function to securely call Claude API
+const allowedOrigins = [
+  'https://brite.co',
+  'https://www.brite.co',
+  'http://localhost:3000',
+  'https://wordpress-683308-2251091.cloudwaysapps.com', // Staging domain
+];
+
+function getCorsHeaders(origin) {
+  const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+}
+
 exports.handler = async (event) => {
+  const origin = event.headers.origin || event.headers.Origin || '';
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Handle preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: corsHeaders,
+      body: '',
+    };
+  }
+
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
@@ -15,7 +43,7 @@ exports.handler = async (event) => {
     if (!prompt) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Prompt is required' })
       };
     }
@@ -43,7 +71,7 @@ exports.handler = async (event) => {
       console.error('Claude API error:', errorText);
       return {
         statusCode: response.status,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Failed to generate message' })
       };
     }
@@ -52,14 +80,14 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     };
   } catch (error) {
     console.error('Function error:', error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ error: 'Internal server error' })
     };
   }
